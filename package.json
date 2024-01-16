@@ -1,6 +1,6 @@
 {
   "name": "@ideasonpurpose/build-tools-throwaway",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A throwaway repo for collecting packages for our build tooling",
   "main": "index.js",
   "scripts": {
