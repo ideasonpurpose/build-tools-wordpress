@@ -5,9 +5,10 @@ import devserverProxy from "./lib/devserver-proxy.js";
 import WatchRunReporterPlugin from "./lib/WatchRunReporterPlugin.js";
 
 
-export { AfterDoneReporterPlugin};
 
-export default {
+// export { };
+export  {
+  AfterDoneReporterPlugin,
   buildConfig,
   DependencyManifestPlugin,
   devserverProxy,
