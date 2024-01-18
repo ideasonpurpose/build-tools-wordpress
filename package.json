@@ -2,25 +2,28 @@
   "name": "@ideasonpurpose/build-tools-throwaway",
   "version": "1.0.4",
   "description": "A throwaway repo for collecting packages for our build tooling",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "homepage": "https://github.com/ideasonpurpose/build-tools-throwaway#readme",
+  "bugs": {
+    "url": "https://github.com/ideasonpurpose/build-tools-throwaway/issues"
   },
-  "bin": {
-    "iop-build-port-reporter": "port-reporter.js"
-  },
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ideasonpurpose/build-tools-throwaway.git"
   },
-  "author": "Ideas On Purpose (https://www.ideasonpurpose.com)",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ideasonpurpose/build-tools-throwaway/issues"
+  "author": "Ideas On Purpose (https://www.ideasonpurpose.com)",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "iop-build-port-reporter": "port-reporter.js"
   },
-  "homepage": "https://github.com/ideasonpurpose/build-tools-throwaway#readme",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "dependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "@svgr/webpack": "^8.1.0",
     "@wordpress/dependency-extraction-webpack-plugin": "^5.0.0",
     "ansi-html": "^0.0.9",

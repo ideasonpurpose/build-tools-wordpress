@@ -11,10 +11,10 @@ exec("docker compose port wordpress 80", (error, stdout, stderr) => {
   if (stdout) {
     const [addr, port] = stdout.split(":");
 
-    console.log(
-      `🟢 ${chalk.gray("(iop)")}:`,
+    console.log("\n",
+      " 🚀 ",
      chalk.bold( "Local WP site:"),
-      chalk.blue(`http://localhost:${chalk.bold(port)}`),
+      chalk.magenta(`http://localhost:${chalk.bold(port)}`),
     );
   }
   // console.log(`stdout: ${stdout}`);
