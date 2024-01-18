@@ -6,6 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "iop-build-port-reporter": "port-reporter.js"
+  },
   "type": "module",
   "repository": {
     "type": "git",
