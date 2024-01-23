@@ -20,7 +20,7 @@ This project expects an entirely ES Module based environment and specifies all d
 
 #### Publishing to [npm](https://www.npmjs.com/package/@ideasonpurpose/build-tools-wordpress)
 
-A GitHub action will auto-publish version-tagged releases to npm. In order to publish, the repository must have an `NPM_TOKEN` secret set with the token from npm. Log into npmjs.org with a publish-authorized account, then find the token linked from the Profile page sidebar.
+A GitHub action will auto-publish version-tagged releases to npm. In order to publish, the repository must have an `NPM_TOKEN` secret set with the token from npm. [Log into npmjs.org](https://www.npmjs.com/login) with a publish-authorized account, then find the token page linked from the Profile page sidebar. Generate a new token and update the repository secret. 
 
 ## &nbsp;
 
