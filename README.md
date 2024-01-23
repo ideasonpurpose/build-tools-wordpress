@@ -14,7 +14,11 @@ The included webpack.config.js file works best when paired with a PHP environmen
 
 ### Additional Notes
 
-This project expects an entirely ES Module based environment and specifies all dependencies using standard ESM import syntax. Projects importing this file should set `"type": "module"` in their package.json files. 
+This project expects an entirely ES Module based environment and specifies all dependencies using standard ESM import syntax. Projects importing this file should set `"type": "module"` in their package.json files.
+
+#### Publishing to [npm](https://www.npmjs.com/package/@ideasonpurpose/build-tools-wordpress)
+
+A GitHub action will auto-publish version-tagged releases to npm. In order to publish, the repository must have an `NPM_TOKEN` secret set with the token from npm. Log into npmjs.org with a publish-authorized account, then find the token linked from the Profile page sidebar.
 
 ## &nbsp;
 
@@ -22,33 +26,25 @@ This project expects an entirely ES Module based environment and specifies all d
 
 <a href="https://www.ideasonpurpose.com"><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/iop-logo-mint-on-black-88px.png" height="44" align="top" alt="IOP Logo"></a><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/spacer.png" align="middle" width="4" height="54"> This project is actively developed and used in production at <a href="https://www.ideasonpurpose.com">Ideas On Purpose</a>.
 
-
 #### Brought to you by IOP
 
 <a href="https://www.ideasonpurpose.com"><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/iop-logo-white-on-black-88px.png" height="44" align="top" alt="IOP Logo"></a><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/spacer.png" align="middle" width="4" height="54"> This project is actively developed and used in production at <a href="https://www.ideasonpurpose.com">Ideas On Purpose</a>.
-
 
 #### Brought to you by IOP
 
 <a href="https://www.ideasonpurpose.com"><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/iop-logo-clay-on-black-88px.png" height="44" align="top" alt="IOP Logo"></a><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/spacer.png" align="middle" width="4" height="54"> This project is actively developed and used in production at <a href="https://www.ideasonpurpose.com">Ideas On Purpose</a>.
 
-
 #### Brought to you by IOP
 
 <a href="https://www.ideasonpurpose.com"><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/iop-logo-white-on-mint-88px.png" height="44" align="top" alt="IOP Logo"></a><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/spacer.png" align="middle" width="4" height="54"> This project is actively developed and used in production at <a href="https://www.ideasonpurpose.com">Ideas On Purpose</a>.
-
-
 
 #### Brought to you by IOP
 
 <a href="https://www.ideasonpurpose.com"><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/iop-logo-black-on-mint-88px.png" height="44" align="top" alt="IOP Logo"></a><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/spacer.png" align="middle" width="4" height="54"> This project is actively developed and used in production at <a href="https://www.ideasonpurpose.com">Ideas On Purpose</a>.
 
-
-
 #### Brought to you by IOP
 
 <a href="https://www.ideasonpurpose.com"><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/iop-logo-white-on-darkmint-88px.png" height="44" align="top" alt="IOP Logo"></a><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/spacer.png" align="middle" width="4" height="54"> This project is actively developed and used in production at <a href="https://www.ideasonpurpose.com">Ideas On Purpose</a>.
 
-
-> *logo test...* 
->😂
+> _logo test..._
+> 😂
