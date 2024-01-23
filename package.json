@@ -19,7 +19,10 @@
   "type": "module",
   "main": "index.js",
   "bin": {
-    "iop-build-port-reporter": "port-reporter.js"
+    "iop-build-port-reporter": "./bin/port-reporter.js"
+  },
+  "directories": {
+    "lib": "lib"
   },
   "scripts": {
     "version": "version-everything && auto-changelog && git add -u"
@@ -64,6 +67,7 @@
     "sass-embedded": "^1.70.0",
     "sass-loader": "^14.0.0",
     "sharp": "^0.33.2",
+    "sort-package-json": "^2.6.0",
     "source-map-explorer": "^2.5.3",
     "string-length": "^6.0.0",
     "style-loader": "^3.3.3",
@@ -76,13 +80,10 @@
     "webpack-dev-middleware": "^7.0.0",
     "webpack-dev-server": "^4.15.1"
   },
+  "devDependencies": {},
   "version-everything": {
     "files": [
       "README.md"
     ]
-  },
-  "directories": {
-    "lib": "lib"
-  },
-  "devDependencies": {}
+  }
 }
