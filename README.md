@@ -1,6 +1,6 @@
 # @ideasonpurpose/build-tools-wordpress
 
-#### Version 1.1.0
+#### Version 1.1.1
 
 Build scripts and dependencies for IOP's WordPress development environments.
 
