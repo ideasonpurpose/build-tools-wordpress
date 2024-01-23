@@ -1,17 +1,21 @@
 {
-  "name": "@ideasonpurpose/build-tools-throwaway",
-  "version": "1.0.4",
-  "description": "A throwaway repo for collecting packages for our build tooling",
-  "homepage": "https://github.com/ideasonpurpose/build-tools-throwaway#readme",
+  "name": "@ideasonpurpose/build-tools-wordpress",
+  "version": "0.1.0",
+  "description": "Build scripts and dependencies for IOP's WordPress development environments.",
+  "homepage": "https://github.com/ideasonpurpose/build-tools-wordpress#readme",
   "bugs": {
-    "url": "https://github.com/ideasonpurpose/build-tools-throwaway/issues"
+    "url": "https://github.com/ideasonpurpose/build-tools-wordpress/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ideasonpurpose/build-tools-throwaway.git"
+    "url": "git+https://github.com/ideasonpurpose/build-tools-wordpress.git"
   },
   "license": "MIT",
-  "author": "Ideas On Purpose (https://www.ideasonpurpose.com)",
+  "author": "Ideas On Purpose (https://www.ideasonpurpose.com/)",
+  "contributors": [
+    "Joe Maller <joe@ideasonpurpose.com>",
+    "Codrin Pavel <codrin@ideasonpurpose.com>"
+  ],
   "type": "module",
   "main": "index.js",
   "bin": {
@@ -46,6 +50,7 @@
     "fs-extra": "^11.1.1",
     "globby": "^14.0.0",
     "http-proxy": "^1.18.1",
+    "humanize-duration": "^3.31.0",
     "image-minimizer-webpack-plugin": "^4.0.0",
     "is-text-path": "^2.0.0",
     "lodash": "^4.17.21",
