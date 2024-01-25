@@ -27,7 +27,10 @@
   "scripts": {
     "version": "version-everything && auto-changelog && git add -u"
   },
+  "prettier": "@ideasonpurpose/prettier-config",
   "dependencies": {
+    "@ideasonpurpose/prettier-config": "^0.0.4",
+    "@prettier/plugin-php": "^0.22.1",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
@@ -47,8 +50,10 @@
     "css-loader": "^6.9.1",
     "cssnano": "^6.0.1",
     "del": "^7.1.0",
-    "dotenv": "^16.3.2",
+    "dotenv": "^16.4.0",
+    "esbuild": "^0.19.12",
     "esbuild-loader": "^4.0.3",
+    "eslint": "^8.56.0",
     "filesize": "^10.0.12",
     "fs-extra": "^11.1.1",
     "globby": "^14.0.0",
@@ -61,11 +66,14 @@
     "node-sass": "^9.0.0",
     "postcss": "^8.4.29",
     "postcss-loader": "^8.0.0",
+    "prettier": "^3.2.4",
+    "prettier-eslint": "^16.3.0",
     "pretty-hrtime": "^1.0.3",
     "replacestream": "^4.0.3",
     "sass": "^1.70.0",
     "sass-embedded": "^1.70.0",
     "sass-loader": "^14.0.0",
+    "semver": "^7.5.4",
     "sharp": "^0.33.2",
     "sort-package-json": "^2.6.0",
     "source-map-explorer": "^2.5.3",
@@ -74,13 +82,12 @@
     "svgo": "^3.0.2",
     "svgo-loader": "^4.0.0",
     "version-everything": "^0.11.0",
-    "webpack": "^5.88.2",
+    "webpack": "^5.90.0",
     "webpack-bundle-analyzer": "^4.9.1",
     "webpack-cli": "^5.1.4",
     "webpack-dev-middleware": "^7.0.0",
     "webpack-dev-server": "^4.15.1"
   },
-  "devDependencies": {},
   "version-everything": {
     "files": [
       "README.md"
