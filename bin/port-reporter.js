@@ -15,7 +15,7 @@ const main = async () => {
       "\n",
       " 🚀 ",
       chalk.bold("Local WP site:"),
-      chalk.magenta(`http://${info.hostname}:${chalk.bold(info.port)}`),
+      chalk.yellow(`http://${info.hostname}:${chalk.bold(info.port)}`),
       "\n",
     );
   } else {

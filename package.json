@@ -19,7 +19,8 @@
   "type": "module",
   "main": "index.js",
   "bin": {
-    "iop-build-port-reporter": "./bin/port-reporter.js"
+    "iop-build-port-reporter": "./bin/port-reporter.js",
+    "iop-build-zip-archive": "./bin/zip.js"
   },
   "directories": {
     "lib": "lib"
@@ -99,5 +100,9 @@
     "files": [
       "README.md"
     ]
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^1.2.2",
+    "vitest": "^1.2.1"
   }
 }
