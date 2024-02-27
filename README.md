@@ -22,10 +22,12 @@ This project expects an entirely ES Module based environment and specifies all d
 
 A GitHub action will auto-publish version-tagged releases to npm. In order to publish, the repository must have an `NPM_TOKEN` secret set with the token from npm. [Log into npmjs.org](https://www.npmjs.com/login) with a publish-authorized account, then find the token page linked from the Profile page sidebar. Generate a new token and update the repository secret. 
 
-## &nbsp;
+<!-- START IOP CREDIT BLURB -->
 
+## &nbsp;
 
 #### Brought to you by IOP
 
 <a href="https://www.ideasonpurpose.com"><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/iop-logo-white-on-black-88px.png" height="44" align="top" alt="IOP Logo"></a><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/spacer.png" align="middle" width="4" height="54"> This project is actively developed and used in production at <a href="https://www.ideasonpurpose.com">Ideas On Purpose</a>.
 
+<!-- END IOP CREDIT BLURB -->
