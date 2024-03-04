@@ -1,5 +1,9 @@
-import fs from "fs-extra";
-import { posix as path } from "path";
+import { readJson, ensureFile } from "fs-extra/esm";
+import { stat } from "node:fs/promises";
+
+import { basename, dirname, join } from "node:path/posix";
+import { createReadStream, createWriteStream, statSync } from "node:fs";
+
 import url from "url";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -13,75 +17,48 @@ import cliTruncate from "cli-truncate";
 import stringLength from "string-length";
 import replaceStream from "replacestream";
 
-import buildConfig from "./lib/buildConfig.js";
-import { prettierHrtime } from "./lib/prettier-hrtime.js";
+// import buildConfig from "../lib/buildConfig.js";
+import { buildConfig } from "../index.js";
+// import {dirname} from "node:path";
+import { prettierHrtime } from "../lib/prettier-hrtime.js";
 
+// console.log(process.cwd());
+// console.log(import.meta.url);
+// console.log(new URL(import.meta.url));
 
-
-export async function  zip()  {
-  // const siteDir = new URL("../site", import.meta.url).pathname;
-  const siteDir = new URL(import.meta.url).pathname;
-  // const explorerSync = cosmiconfigSync("ideasonpurpose");
+async function getConfig() {
+  const siteDir = process.cwd();
   const explorer = cosmiconfig("ideasonpurpose");
-  // const configFile = explorerSync.search(siteDir);
   const configFile = await explorer.search(siteDir);
+  const config = await buildConfig(configFile);
+
+  // config.configFileUrl2 = configFile.filepath;
+  console.log({ config, configFile });
+
+  return { config };
 }
+const { config } = await getConfig();
 
-zip()
+config.configFileUrl = new URL("package.json", config.configFileUrl);
+const packageJson = readJson(new URL("package.json", config.configFileUrl));
+packageJson.version = (await packageJson).version ??= "";
 
-/**
- * This script expects to the site to live in /usr/src/site/ to
- * match the webpack config. It can also be called with a single
- * path argument which will be evaluated relative to the script.
- * This can be used for testing, or to bundle any directory while
- * excluding src, node_modules, etc.
- */
-let siteDirBase = process.argv[2] || "/usr/src/site/";
-siteDirBase += siteDirBase.endsWith("/") ? "" : "/";
-// const siteDir = new URL(siteDirBase, import.meta.url);
+console.log({ pgk: await packageJson });
+// console.log({ packageJson, env: process.env });
 
-// const explorerSync = cosmiconfigSync("ideasonpurpose");
-// const configFile = explorerSync.search(siteDir.pathname) || {
-//   config: {},
-//   filepath: siteDir.pathname,
-// };
-// const configFileUrl = url.pathToFileURL(configFile.filepath);
-// const config = buildConfig(configFile);
-
-// const explorerSync = cosmiconfigSync("ideasonpurpose");
-// const configFile = explorerSync.search(siteDir);
-
-const configFile = {
-  filepath: fileURLToPath(
-    new URL("../site/ideasonpurpose.config.js", import.meta.url)
-  ),
-};
-const configFileUrl = pathToFileURL(configFile.filepath);
-
-// import buildConfig from "./lib/buildConfig.js";
-import siteConfig from "../site/ideasonpurpose.config.js";
-
-console.log({ configFile, configFileUrl });
-
-
-return ;
-// const config = buildConfig(configFile ?? siteConfig);
-const config = buildConfig({ config: siteConfig });
-
-const packageJson = fs.readJsonSync(new URL("package.json", configFileUrl));
-packageJson.version ??= "";
-
-const archiveName = packageJson.name || "archive";
+const archiveName = (await packageJson).name || "archive";
 
 const versionDirName = packageJson.version
   ? `${archiveName}-${packageJson.version}`.replace(/[ .]/g, "_")
   : archiveName;
 
 const zipFileName = `${versionDirName}.zip`;
-const zipFile = new URL(`_builds/${zipFileName}`, configFileUrl).pathname;
+const zipFile = new URL(`_builds/${zipFileName}`, config.configFileUrl);
+// .pathname;
 
-fs.ensureFileSync(zipFile);
-const output = fs.createWriteStream(zipFile);
+console.log({ zipFile, zipFileName });
+await ensureFile(zipFile.pathname);
+const output = createWriteStream(zipFile);
 
 output.on("finish", finishReporter);
 
@@ -95,7 +72,8 @@ const start = process.hrtime();
  * Set projectDir to the parent directory of config.src, all bundled
  * files will be found relative to this.
  */
-const projectDir = new URL(`${config.src}/../`, configFileUrl);
+const projectDir = new URL(`${config.src}/../`, config.configFileUrl);
+// process.exit();
 
 /**
  * Counters for total uncompressed size and number of files
@@ -105,7 +83,25 @@ let inBytes = 0;
 let fileCount = 0;
 
 const globOpts = { cwd: projectDir.pathname, nodir: false };
-globby(["**/*", "!src", "!_builds", "!**/*.sql", "!**/node_modules"], globOpts)
+globby(
+  [
+    "**/*",
+    "!_builds",
+    "!**/*.sql",
+    "!**/node_modules",
+    "!CHANGELOG.md",
+    "!composer.lock",
+    "!coverage*",
+    "!docker-compose.yml",
+    "!docker-compose.yml",
+    "!package-lock.json",
+    "!phpunit.xml",
+    "!src",
+    "!test",
+    "!tests",
+  ],
+  globOpts,
+)
   .then((fileList) => {
     /**
      * Throw an error and bail out if there are no files to zip
@@ -119,8 +115,8 @@ globby(["**/*", "!src", "!_builds", "!**/*.sql", "!**/node_modules"], globOpts)
     fileList.map((f) => {
       const file = {
         path: f,
-        stat: fs.statSync(new URL(f, projectDir)),
-        contents: fs.createReadStream(path.join(globOpts.cwd, f)),
+        stat: statSync(new URL(f, projectDir)),
+        contents: createReadStream(join(globOpts.cwd, f)),
       };
 
       /**
@@ -132,7 +128,7 @@ globby(["**/*", "!src", "!_builds", "!**/*.sql", "!**/node_modules"], globOpts)
         const devPath = new RegExp(`wp-content/themes/${archiveName}/`, "gi");
 
         file.contents = file.contents.pipe(
-          replaceStream(devPath, `wp-content/themes/${versionDirName}/`)
+          replaceStream(devPath, `wp-content/themes/${versionDirName}/`),
         );
       }
 
@@ -148,15 +144,15 @@ globby(["**/*", "!src", "!_builds", "!**/*.sql", "!**/node_modules"], globOpts)
        */
       file.contents.pause();
       return file;
-    })
+    }),
   )
   .then((fileList) =>
     fileList.map((f) =>
       archive.append(f.contents, {
         name: f.path,
         prefix: versionDirName,
-      })
-    )
+      }),
+    ),
   )
   .then(() => archive.finalize())
   .catch(console.error);
@@ -199,33 +195,33 @@ function finishReporter() {
     chalk.yellow("Found"),
     chalk.magenta(fileCount),
     chalk.yellow("files"),
-    chalk.gray(`(Uncompressed: ${filesize(inBytes)})`)
+    chalk.gray(`(Uncompressed: ${filesize(inBytes)})`),
   );
   console.log(
     "👀 ",
     chalk.yellow("Webpack Bundle Analyzer report:"),
-    chalk.magenta("webpack/stats/index.html")
+    chalk.magenta("webpack/stats/index.html"),
   );
   console.log(
     "📦 ",
     chalk.yellow("Created"),
     chalk.magenta(filesize(outBytes)),
     chalk.yellow("Zip archive"),
-    chalk.gray(`(Saved ${filesize(savedBytes)}, ${savedPercent}%)`)
+    chalk.gray(`(Saved ${filesize(savedBytes)}, ${savedPercent}%)`),
   );
   console.log(
     "🎁 ",
     chalk.yellow("Theme archive"),
     chalk.magenta(
-      `${path.basename(path.dirname(zipFile))}/${chalk.bold(zipFileName)}`
+      `${basename(dirname(zipFile.pathname))}/${chalk.bold(zipFileName)}`,
     ),
     chalk.yellow("created in"),
-    chalk.magenta(duration)
+    chalk.magenta(duration),
   );
   console.log("⏳");
   console.log(
     "🚀 ",
-    chalk.bold(`Remember to push to ${chalk.cyan("GitHub!")}`)
+    chalk.bold(`Remember to push to ${chalk.cyan("GitHub!")}`),
   );
   console.log("✨");
 }
