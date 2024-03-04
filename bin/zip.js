@@ -177,9 +177,9 @@ function foundReporter(file) {
 
   if (fileCount % 25 == 0) {
     // process.stdout.clearLine();
-    clearLine(stdout);
+    clearLine(process.stdout);
     // process.stdout.cursorTo(0);
-    cursorTo(stdout, 0);
+    cursorTo(process.stdout, 0);
     process.stdout.write(outString);
 
   }
@@ -193,10 +193,10 @@ function finishReporter() {
   const savedPercent = ((1 - outBytes / inBytes) * 100).toFixed(2);
 
   // process.stdout.clearLine();
-  clearLine(stdout);
+  clearLine(process.stdout);
 
   // process.stdout.cursorTo(0);
-  cursorTo(stdout, 0);
+  cursorTo(process.stdout, 0);
 
   console.log(
     "🔍 ",
