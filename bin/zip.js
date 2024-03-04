@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import { readJsonSync, ensureFileSync } from "fs-extra/esm";
 import { stat } from "node:fs/promises";
 
