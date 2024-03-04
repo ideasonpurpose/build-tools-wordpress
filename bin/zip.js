@@ -4,6 +4,8 @@ import { stat } from "node:fs/promises";
 import { basename, dirname, join } from "node:path/posix";
 import { createReadStream, createWriteStream, statSync } from "node:fs";
 
+import { clearLine, cursorTo } from "node:readline";
+
 import url from "url";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -174,9 +176,12 @@ function foundReporter(file) {
   outString += chalk.blue(cliTruncate(file.path, cols, { position: "middle" }));
 
   if (fileCount % 25 == 0) {
-    process.stdout.clearLine();
-    process.stdout.cursorTo(0);
+    // process.stdout.clearLine();
+    clearLine(stdout);
+    // process.stdout.cursorTo(0);
+    cursorTo(stdout, 0);
     process.stdout.write(outString);
+
   }
 }
 
