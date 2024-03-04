@@ -1,6 +1,6 @@
 # @ideasonpurpose/build-tools-wordpress
 
-#### Version 1.1.6
+#### Version 1.1.7
 
 ![NPM Version](https://img.shields.io/npm/v/%40ideasonpurpose%2Fbuild-tools-wordpress?logo=npm)
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ideasonpurpose/build-tools-wordpress/npm-publish.yml?logo=github&logoColor=white)
