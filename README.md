@@ -17,7 +17,7 @@ Each project should have an **ideasonpurpose.config.js** file in the same direct
 
 ### Versioned Releases
 
-IOP versions our theme releases so every release creates a clear rollback snapshot. To accomplish this, each theme release is generated into a versioned directory. This works well for themes, where only one can be active, but fails for plugins where multiple versions can be simultaneously activated if their directory names are different. 
+IOP versions our themes so every release creates a clear rollback snapshot. To accomplish this, every milestone build is generated into a versioned directory. This works well for themes where only one can be active, but fails for plugins where multiple versions can be simultaneously enabled so long as their directory names are different. 
 
 To work around this, a `type` property can be added to the config file. When `type` is `plugin`, builds will not add the version to directory names.
 
