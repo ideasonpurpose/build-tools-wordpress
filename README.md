@@ -2,8 +2,8 @@
 
 #### Version 1.1.11
 
-![NPM Version](https://img.shields.io/npm/v/%40ideasonpurpose%2Fbuild-tools-wordpress?logo=npm)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ideasonpurpose/build-tools-wordpress/npm-publish.yml?logo=github&logoColor=white)
+[![NPM Version](https://img.shields.io/npm/v/%40ideasonpurpose%2Fbuild-tools-wordpress?logo=npm)](https://www.npmjs.com/package/@ideasonpurpose/build-tools-wordpress)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ideasonpurpose/build-tools-wordpress/npm-publish.yml?logo=github&logoColor=white)](https://github.com/ideasonpurpose/build-tools-wordpress#readme)
 
 Build scripts and dependencies for IOP's WordPress development environments.
 
