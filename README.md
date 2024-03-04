@@ -15,6 +15,12 @@ Each project should have an **ideasonpurpose.config.js** file in the same direct
 - **`dist`** - The **distribution** directory where processed, production-ready files will be output to. All contents of this directory will be included in builds.
 - **`src`** - An array of file entry points relative to the `src` directory. Each entry point will generate a like-named output file. All files and assets imported by a given entry point will be accessible from that entry's corresponding output file.
 
+### Versioned Releases
+
+IOP versions our theme releases so every release creates a clear rollback snapshot. To accomplish this, each theme release is generated into a versioned directory. This works well for themes, where only one can be active, but fails for plugins where multiple versions can be simultaneously activated if their directory names are different. 
+
+To work around this, a `type` property can be added to the config file. When `type` is `plugin`, builds will not add the version to directory names.
+
 ## About This Project
 
 These tools were migrated from our [Docker-based WordPress build tools](https://github.com/ideasonpurpose/docker-build) to speed up development and began the process of moving our build tools away from webpack. Gathering dependencies also simplifies the package.json files in host projects, making those slightly more manageable.

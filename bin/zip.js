@@ -1,4 +1,4 @@
-import { readJson, ensureFile } from "fs-extra/esm";
+import { readJsonSync, ensureFileSync } from "fs-extra/esm";
 import { stat } from "node:fs/promises";
 
 import { basename, dirname, join } from "node:path/posix";
@@ -35,31 +35,34 @@ async function getConfig() {
   const config = await buildConfig(configFile);
 
   // config.configFileUrl2 = configFile.filepath;
-  console.log({ config, configFile });
+  // console.log({ config, configFile });
 
   return { config };
 }
 const { config } = await getConfig();
 
-config.configFileUrl = new URL("package.json", config.configFileUrl);
-const packageJson = readJson(new URL("package.json", config.configFileUrl));
-packageJson.version = (await packageJson).version ??= "";
+// config.configFileUrl = new URL("package.json", config.configFileUrl);
+const pkgJson = readJsonSync(new URL("package.json", config.configFileUrl));
+pkgJson.name = pkgJson.name ?? "archive";
+pkgJson.version = pkgJson.version ?? "";
 
-console.log({ pgk: await packageJson });
-// console.log({ packageJson, env: process.env });
+const archiveName = pkgJson.name || "archive";
+const archiveVersion = config.type !== "plugin" ? `-${pkgJson.version}` : "";
 
-const archiveName = (await packageJson).name || "archive";
-
-const versionDirName = packageJson.version
-  ? `${archiveName}-${packageJson.version}`.replace(/[ .]/g, "_")
-  : archiveName;
+const versionDirName = `${archiveName}${archiveVersion}`.replace(/[ .]/g, "_");
 
 const zipFileName = `${versionDirName}.zip`;
 const zipFile = new URL(`_builds/${zipFileName}`, config.configFileUrl);
-// .pathname;
 
-console.log({ zipFile, zipFileName });
-await ensureFile(zipFile.pathname);
+console.log({
+  archiveName,
+  archiveVersion,
+  versionDirName,
+  zipFile,
+  zipFileName,
+});
+
+ensureFileSync(zipFile.pathname);
 const output = createWriteStream(zipFile);
 
 output.on("finish", finishReporter);
@@ -181,7 +184,6 @@ function foundReporter(file) {
     // process.stdout.cursorTo(0);
     cursorTo(process.stdout, 0);
     process.stdout.write(outString);
-
   }
 }
 
