@@ -192,8 +192,11 @@ function finishReporter() {
   const savedBytes = inBytes - outBytes;
   const savedPercent = ((1 - outBytes / inBytes) * 100).toFixed(2);
 
-  process.stdout.clearLine();
-  process.stdout.cursorTo(0);
+  // process.stdout.clearLine();
+  clearLine(stdout);
+
+  // process.stdout.cursorTo(0);
+  cursorTo(stdout, 0);
 
   console.log(
     "🔍 ",
