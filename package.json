@@ -74,6 +74,7 @@
     "prettier": "^3.2.5",
     "prettier-eslint": "^16.3.0",
     "pretty-hrtime": "^1.0.3",
+    "read-package-up": "^11.0.0",
     "replacestream": "^4.0.3",
     "sass": "^1.71.1",
     "sass-embedded": "^1.71.1",
