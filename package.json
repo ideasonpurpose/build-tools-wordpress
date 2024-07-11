@@ -53,7 +53,6 @@
     "cross-env": "^7.0.3",
     "css-loader": "^7.1.2",
     "cssnano": "^7.0.4",
-    "del": "^7.1.0",
     "dotenv": "^16.4.5",
     "esbuild-loader": "^4.2.0",
     "eslint": "^9.6.0",
@@ -70,7 +69,6 @@
     "postcss-loader": "^8.1.1",
     "postcss-scss": "^4.0.9",
     "prettier": "^3.3.2",
-    "prettier-eslint": "^16.3.0",
     "pretty-hrtime": "^1.0.3",
     "read-package-up": "^11.0.0",
     "replacestream": "^4.0.3",
@@ -94,13 +92,13 @@
     "webpack-dev-middleware": "^7.2.1",
     "webpack-dev-server": "^5.0.4"
   },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^2.0.1",
+    "vitest": "^2.0.1"
+  },
   "version-everything": {
     "files": [
       "README.md"
     ]
-  },
-  "devDependencies": {
-    "@vitest/coverage-v8": "^2.0.1",
-    "vitest": "^2.0.1"
   }
 }
