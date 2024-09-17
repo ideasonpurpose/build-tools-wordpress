@@ -26,8 +26,8 @@ import cssnano from "cssnano";
 /**
  * Sass flavors for conditional sass-loader implementations
  */
-import * as nodeSass from "sass";
-import * as dartSass from "sass-embedded";
+// import * as nodeSass from "sass";
+// import * as dartSass from "sass-embedded";
 
 // Experimenting with this
 import DependencyExtractionWebpackPlugin from "@wordpress/dependency-extraction-webpack-plugin";
@@ -84,23 +84,19 @@ const stats = {
 };
 
 export default async (env) => {
-  // const siteDir = new URL("../site", import.meta.url).pathname;
   const siteDir = new URL(import.meta.url).pathname;
-  // const explorerSync = cosmiconfigSync("ideasonpurpose");
-  const explorer = cosmiconfig("ideasonpurpose");
-  // const configFile = explorerSync.search(siteDir);
+  const explorer = cosmiconfig("ideasonpurpose", { searchStrategy: "project" });
   const configFile = await explorer.search(siteDir);
 
-  // import buildConfig from "./lib/buildConfig.js";
-  // console.log({ siteDir, configFile, nm: path.resolve("node_modules") });
-
   const config = await buildConfig(configFile);
+
+  const proxy = isProduction ? {} : await devserverProxy(config);
 
   setTimeout(() =>
     console.log(
       chalk.magenta.bold("sass implementation"),
       chalk.yellow.bold(config.sass),
-      config.sass === "sass" ? nodeSass : dartSass,
+      // config.sass === "sass" ? nodeSass : dartSass,
     ),
   );
 
@@ -111,7 +107,7 @@ export default async (env) => {
    *
    * TODO: Why so much dancing around defaults when this could just inherit from default.config?
    */
-  const usePolling = Boolean(config.usePolling);
+  const usePolling = Boolean(config.usePolling); // likely undefined, coerced to false
   const pollInterval = Math.max(
     parseInt(config.pollInterval, 10) || parseInt(config.usePolling, 10) || 400,
     400,
@@ -119,7 +115,19 @@ export default async (env) => {
 
   const devtool = config.devtool || false;
 
-  console.log({ config, devServerProxy: await devserverProxy(config) });
+  const sassLibs = ["sass-embedded", "sass", "node-sass"];
+  const sassImplementation = sassLibs.includes(config.sass)
+    ? { implementation: config.sass }
+    : {};
+
+  // TODO: Move this into buildConfig()
+  config.esTarget = config.esTarget || "es2020"; // was "es2015"
+
+  console.log({
+    metaurl: new URL("webpack/stats/index.html", import.meta.url),
+    config,
+    // devServerProxy: await devserverProxy(config),
+  });
 
   return {
     // stats: "errors-warnings",
@@ -154,21 +162,22 @@ export default async (env) => {
          * Updated 2022-09, simpler
          */
         {
-          test: /\.m?jsx?$/,
+          test: /\.[jt]sx?$/,
+          // test: /\.js$/,
           loader: "esbuild-loader",
           options: {
             loader: "jsx",
-            target: "es2015",
+            target: config.esTarget,
           },
         },
-        {
-          test: /\.tsx?$/,
-          loader: "esbuild-loader",
-          options: {
-            loader: "tsx",
-            target: "es2015",
-          },
-        },
+        // {
+        //   test: /\.tsx?$/,
+        //   loader: "esbuild-loader",
+        //   options: {
+        //     loader: "tsx",
+        //     target: config.esTarget,
+        //   },
+        // },
 
         // use: {
         //   loader: "babel-loader",
@@ -232,7 +241,8 @@ export default async (env) => {
             {
               loader: "sass-loader",
               options: {
-                implementation: config.sass === "sass" ? nodeSass : dartSass,
+                ...sassImplementation,
+                // implementation: config.sass === "sass" ? nodeSass : dartSass,
                 // implementation: nodeSass,
                 // implementation: await import(config.sass),
                 sourceMap: !isProduction,
@@ -243,6 +253,7 @@ export default async (env) => {
 
                   includePaths: [
                     path.resolve(config.src, "sass"),
+                    path.resolve(config.src),
                     // path.resolve("../site/node_modules"),
                     path.resolve("node_modules"),
                   ],
@@ -338,17 +349,21 @@ export default async (env) => {
     devServer: {
       host: "0.0.0.0",
       allowedHosts: "all",
-      // setupExitSignals: true,// default
-
-      compress: config.devServerCompress || false, // TODO: True by default in devServer v4, exposed via config.devServerCompress to test speed impact
       port: "auto",
       // hot: true, // TODO: What does 'only' do? https://webpack.js.org/configuration/dev-server/#devserverhot
-      hot: 'only', // TODO: What does 'only' do? https://webpack.js.org/configuration/dev-server/#devserverhot
+      hot: "only", // TODO: What does 'only' do? https://webpack.js.org/configuration/dev-server/#devserverhot
       client: {
-        // logging: "error", // TODO: New, is this ok?
-        logging: "info", // TODO: New, is this ok?
-        overlay: true, // { warnings: true, errors: true },
-        progress: true, // TODO: New, is this ok?
+        logging: "info",
+        overlay: {
+          errors: true,
+          warnings: true,
+          runtimeErrors: (error) => {
+            // specific errors can be inspected and handled individually
+            // https://webpack.js.org/configuration/dev-server/#overlay
+            // console.log("webpack devServer runtimeError:", error);
+            return false;
+          },
+        },
         reconnect: 30,
         // webSocketURL: {
         //   port: parseInt(process.env.PORT), // external port, so websockets hit the right endpoint
@@ -482,11 +497,15 @@ export default async (env) => {
 
       watchFiles: {
         paths: [
-          path.resolve(config.src, "../**/*.{php,json}"), // WordPress
-          // path.resolve(config.src, `../${config.contentBase}/*.html`), // Jekyll
+          path.resolve(config.src, "../**/*.{php,html,svg,json}"), // WordPress
         ],
         options: {
-          ignored: ["**/.git/**", "**/vendor/**", "**/node_modules/**", "**/dist/**"],
+          ignored: [
+            "**/.git/**",
+            "**/vendor/**",
+            "**/node_modules/**",
+            "**/dist/**",
+          ],
           ignoreInitial: true,
           ignorePermissionErrors: true,
           /**
@@ -498,7 +517,10 @@ export default async (env) => {
         },
       },
 
-      ...(await devserverProxy(config)),
+      // ...(await devserverProxy(config)),
+      // TODO: Move
+      // ...(isProduction ? {} : await devserverProxy(config)),
+      ...proxy,
     },
 
     mode: isProduction ? "production" : "development",
@@ -522,10 +544,15 @@ export default async (env) => {
               dot: true, // TODO: Dangerous? Why is this ever necessary?!
               ignore: [
                 "**/{.gitignore,.DS_Store,*:Zone.Identifier}",
-                config.src + "/{blocks,fonts,js,sass}/**",
+                config.src + "/{block,blocks,fonts,js,sass}/**",
               ],
             },
+            noErrorOnMissing: true,
           },
+          {
+            from: config.src + "/{block,blocks}/**/block.json",
+            noErrorOnMissing: true,
+          }, // re-add block.json files for loading from PHP
         ],
         options: { concurrency: 50 },
       }),
@@ -551,7 +578,8 @@ export default async (env) => {
       new BundleAnalyzerPlugin({
         analyzerMode: isProduction ? "static" : "disabled",
         openAnalyzer: false,
-        reportFilename: path.resolve(siteDir, "webpack/stats/index.html"),
+        reportFilename: new URL("webpack/stats/index.html", import.meta.url)
+          .pathname,
       }),
     ],
     optimization: {
@@ -560,12 +588,8 @@ export default async (env) => {
       },
       minimizer: [
         new EsbuildPlugin({
-          /**
-           * Additional targets, can we bump this up to es2020 yet?
-           * TODO: Expose this to the config
-           * @link https://esbuild.github.io/content-types/#javascript
-           */
-          target: "es2015",
+          target: config.esTarget,
+          css: true,
         }),
         new ImageMinimizerPlugin({
           severityError: "error",
