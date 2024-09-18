@@ -8,6 +8,8 @@ export { findLocalPort } from "./lib/find-local-docker-port.js";
 // export * from  "./lib/find-local-docker-port.js";
 // import findLocalPort from "./lib/find-local-docker-port.js";
 
+import webpackConfig from "./config/webpack.config.js";
+export { webpackConfig };
 // export default {
 //   // AfterDoneReporterPlugin,
 //   //   buildConfig,
