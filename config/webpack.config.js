@@ -84,7 +84,8 @@ const stats = {
 };
 
 export default async (env) => {
-  const siteDir = new URL(import.meta.url).pathname;
+  // const siteDir = new URL(import.meta.url).pathname;
+  const siteDir = process.cwd();
   const explorer = cosmiconfig("ideasonpurpose", { searchStrategy: "project" });
   const configFile = await explorer.search(siteDir);
 
