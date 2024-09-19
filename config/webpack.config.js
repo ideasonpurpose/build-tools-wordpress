@@ -59,6 +59,7 @@ const stats = {
   // colors: true,
   // depth: false,
   // env: true,
+  hash: true,
   // orphanModules: false,
   // dependentModules: true,
   modules: false,
@@ -75,8 +76,8 @@ const stats = {
   // optimizationBailout: true,
   // loggingTrace: false,
   performance: true,
-  reasons: true,
-  relatedAssets: true,
+  reasons: false,
+  relatedAssets: false,
   timings: true,
   version: true,
   warnings: true,
@@ -106,6 +107,9 @@ export default async (env) => {
    * since they don't support file-watching (no inotify events), if there's
    * something clean, use that instead. For now, this will force-enable polling.
    *
+   * TODO: usePolling is likely no longer needed since webpack is running from node and
+   *       not Docker
+   *
    * TODO: Why so much dancing around defaults when this could just inherit from default.config?
    */
   const usePolling = Boolean(config.usePolling); // likely undefined, coerced to false
@@ -121,11 +125,11 @@ export default async (env) => {
     ? { implementation: config.sass }
     : {};
 
-  console.log({
-    metaurl: new URL("webpack/stats/index.html", import.meta.url),
-    config,
-    // devServerProxy: await devserverProxy(config),
-  });
+  // console.log({
+  //   metaurl: new URL("webpack/stats/index.html", import.meta.url),
+  //   config,
+  //   // devServerProxy: await devserverProxy(config),
+  // });
 
   return {
     // stats: "errors-warnings",
@@ -461,6 +465,8 @@ export default async (env) => {
         //   throw new Error("webpack-dev-server is not defined");
         // }
 
+        //  devServer.internalIP('v4').then(ip => console.log('!!!!!!', ip));
+
         /**
          * The `/inform` route is an annoying bit of code. Here's why:
          * Ubiquity Wi-fi hardware frequently spams the shit out of their
@@ -515,9 +521,6 @@ export default async (env) => {
         },
       },
 
-      // ...(await devserverProxy(config)),
-      // TODO: Move
-      // ...(isProduction ? {} : await devserverProxy(config)),
       ...proxy,
     },
 
