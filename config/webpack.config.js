@@ -66,6 +66,7 @@ const stats = {
   groupAssetsByChunk: true,
   entrypoints: true,
   // // errorDetails: "auto",
+  errorDetails: true,
   children: false,
   // errorDetails: true,
   errors: true,
