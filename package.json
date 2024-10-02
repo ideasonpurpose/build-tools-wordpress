@@ -27,7 +27,6 @@
     "lib": "lib"
   },
   "scripts": {
-    "postinstall": "patch-package",
     "version": "version-everything && auto-changelog && git add -u"
   },
   "prettier": "@ideasonpurpose/prettier-config",
@@ -68,7 +67,6 @@
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^2.9.1",
     "ora": "^8.1.0",
-    "patch-package": "^8.0.0",
     "postcss": "^8.4.47",
     "postcss-loader": "^8.1.1",
     "postcss-scss": "^4.0.9",
