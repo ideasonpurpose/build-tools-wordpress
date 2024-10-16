@@ -70,7 +70,7 @@ const stats = {
   children: false,
   // errorDetails: true,
   errors: true,
-  errorStack: true,
+  errorStack: false,
   // excludeAssets: [/hot-update/, /_sock-/],
   // groupAssetsByChunk: true,
   // logging: "warn",
