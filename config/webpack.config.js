@@ -253,15 +253,16 @@ export default async (env) => {
                 webpackImporter: false,
                 sassOptions: {
                   // api: "modern",
+                  api: "modern-compiler",
 
-                  includePaths: [
-                    path.resolve(config.src, "sass"),
-                    path.resolve(config.src),
-                    // path.resolve("../site/node_modules"),
-                    path.resolve("node_modules"),
-                  ],
-                  style: "expanded",
-                  verbose: true,
+                  // includePaths: [
+                  //   path.resolve(config.src, "sass"),
+                  //   path.resolve(config.src),
+                  //   // path.resolve("../site/node_modules"),
+                  //   path.resolve("node_modules"),
+                  // ],
+                  // style: "expanded",
+                  // verbose: true,
                 },
               },
             },
