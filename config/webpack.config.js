@@ -135,7 +135,6 @@ export default async (env) => {
   return {
     // stats: "errors-warnings",
     stats,
-    cache: false,
     module: {
       rules: [
         // {
