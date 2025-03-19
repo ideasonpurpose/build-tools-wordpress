@@ -1,3 +1,5 @@
+//@ts-check
+
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { exec } from "node:child_process";
