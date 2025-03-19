@@ -1,7 +1,11 @@
+//@ts-check
+
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import fs from "fs";
 import dns from "dns";
+
+import { EventEmitter } from "events";
 
 import { devserverProxy } from "../lib/devserver-proxy.js";
 import { findLocalPort } from "../lib/find-local-docker-port.js";
@@ -59,7 +63,6 @@ afterEach(() => {
 //   expect(actual).toBe(expected);
 // });
 
-
 // test("Send legacy token where there's no wordpress service", async () => {
 //   jest.spyOn(dns, "promises", "get").mockImplementation(() => {
 //     // console.log("ONLY ONCE");
@@ -107,74 +110,152 @@ afterEach(() => {
 
 test("Test proxy settings", async () => {
   let proxy = true;
-  const actual = await devserverProxy({ proxy });
-  console.log(actual);
-  expect(actual).toHaveProperty("proxy.**.target");
-  expect(actual.proxy["**"].target).toMatch("stella");
+  const actual = (await devserverProxy({ proxy })).proxy[0];
+  expect(actual).toHaveProperty("target");
+  expect(actual.context).toContain("**");
 });
 
 test("proxy is bare IP address", async () => {
   let proxy = "4.3.2.1";
-  const actual = await devserverProxy({ proxy });
-  expect(actual).toHaveProperty("proxy.**.target", "http://4.3.2.1");
+  const actual = (await devserverProxy({ proxy })).proxy[0];
+  expect(actual).toHaveProperty("target", "http://4.3.2.1");
 });
 
 test("proxy is a url", async () => {
-  let proxy = "https://example.com/";
-  const actual = await devserverProxy({ proxy });
-  expect(actual).toHaveProperty("proxy.**.target", "https://example.com");
+  let proxy = "https://example.com";
+  const actual = (await devserverProxy({ proxy })).proxy[0];
+  expect(actual).toHaveProperty("target", proxy);
 });
 
 test("proxy is a plain string", async () => {
   let proxy = "sandwich";
-  const actual = await devserverProxy({ proxy });
-  expect(actual).toHaveProperty("proxy.**.target", expectedTarget);
+  const actual = (await devserverProxy({ proxy })).proxy[0];
+  expect(actual).toHaveProperty("target", expectedTarget);
   expect(findLocalPort).toHaveBeenCalledWith(proxy);
 });
 
 test("Proxy boolean true", async () => {
   vi.mocked(findLocalPort).mockReturnValue(localPort);
   const proxy = true;
-  const actual = await devserverProxy({ proxy });
-  expect(actual).toHaveProperty("proxy.**.target", expectedTarget);
+  const actual = (await devserverProxy({ proxy })).proxy[0];
+  expect(actual).toHaveProperty("target", expectedTarget);
 });
 
 test("Proxy boolean false", async () => {
   const proxy = false;
-  expect(await devserverProxy({ proxy })).toStrictEqual({});
+  expect(await devserverProxy({ proxy })).toStrictEqual({ proxy: [] });
 });
 
 test("test the returned proxy onError handler", async () => {
-  let proxy = "wordpress";
   const logSpy = vi.spyOn(console, "log");
   const actual = await devserverProxy({ proxy: true });
 
-  // console.log(actual);
-  expect(actual).toHaveProperty("proxy.**");
+  const err = { code: "ECONNRESET" };
 
-  const route = actual.proxy["**"];
-  let err = new Error("boom");
-  err.code = "ECONNRESET";
-  route.onError(err);
-
-  expect(route).toHaveProperty("onError");
+  actual.proxy[0].onError(err, "req", "res");
   expect(logSpy).toHaveBeenLastCalledWith(
     expect.stringContaining("ECONNRESET"),
   );
 
-  const writeHead = vi.fn();
-  const end = vi.fn();
-  const res = { writeHead, end };
-  const req = { url: "url" };
-
-  err = new Error("boom-again ");
   err.code = "Unknown Error Code";
-  route.onError(err, req, res);
+  err.stack = "STACK";
 
-  // expect(logSpy).toHaveBeenCalledWith('PROXY ERROR');
-  // expect(logSpy.mock.calls[1][0]).toMatch(/^PROXY ERROR/);
-  // expect(end.mock.calls[0][0]).toMatch(/^Webpack DevServer/);
+  const req = { url: "url" };
+  const res = { writeHead: vi.fn(), end: vi.fn() };
+
+  actual.proxy[0].onError(err, req, res);
+
+  expect(logSpy).toHaveBeenLastCalledWith(
+    expect.stringContaining("Devserver Proxy Error"),
+    req.url,
+    expect.any(Object),
+    err.stack,
+  );
+
+  expect(res.writeHead).toHaveBeenCalledWith(500, expect.any(Object));
+  expect(res.end).toHaveBeenCalledWith(
+    expect.stringContaining("Webpack DevServer Proxy Error: "),
+  );
 });
+
+test("onProxyRes Handler", async () => {
+  const config = { proxy: "http://localhost:3000" };
+  const result = await devserverProxy(config);
+  const onProxyRes = result.proxy[0].onProxyRes;
+
+  const mockProxyRes = new EventEmitter();
+  mockProxyRes.statusCode = 200;
+  mockProxyRes.statusMessage = "OK";
+  mockProxyRes.headers = {
+    "content-type": "text/css",
+  };
+  const mockReq = {
+    headers: { host: "example.com" },
+    path: "/style.css",
+  };
+
+  const mockRes = {
+    statusCode: 0,
+    setHeader: vi.fn(),
+    end: vi.fn(),
+  };
+
+  onProxyRes(mockProxyRes, mockReq, mockRes);
+
+  const bodySrc = "body { color: red; }";
+  let originalBody = Buffer.from(bodySrc);
+  mockProxyRes.emit("data", originalBody);
+  mockProxyRes.emit("end");
+
+  // Assert
+  expect(mockRes.statusCode).toBe(200);
+  expect(mockRes.end).toHaveBeenCalledWith(bodySrc);
+  expect(mockRes.setHeader).toHaveBeenCalledWith(
+    "content-type",
+    expect.anything(),
+  );
+});
+
+
+test("onProxyRes Handler passthrough", async () => {
+  const config = { proxy: "http://localhost:3000" };
+  const result = await devserverProxy(config);
+  const onProxyRes = result.proxy[0].onProxyRes;
+
+  const mockProxyRes = new EventEmitter();
+  mockProxyRes.statusCode = 200;
+  mockProxyRes.statusMessage = "OK";
+  mockProxyRes.headers = {
+    "content-type": "nope/nope",
+  };
+  const mockReq = {
+    headers: { host: "example.com" },
+    path: "/style.css",
+  };
+
+  const mockRes = {
+    statusCode: 0,
+    setHeader: vi.fn(),
+    end: vi.fn(),
+  };
+
+  onProxyRes(mockProxyRes, mockReq, mockRes);
+
+  const bodySrc = "body { color: red; }";
+  let originalBody = Buffer.from(bodySrc);
+  mockProxyRes.emit("data", originalBody);
+  mockProxyRes.emit("end");
+
+  // Assert
+  expect(mockRes.statusCode).toBe(200);
+  expect(mockRes.end).toHaveBeenCalledWith(Buffer.from(bodySrc));
+  expect(mockRes.setHeader).toHaveBeenCalledWith(
+    "content-type",
+    expect.anything(),
+  );
+});
+
+
 
 // test("test proxy's onProxyRes handler", async () => {
 //   let proxy = "https://example.com";
