@@ -20,13 +20,14 @@
   "main": "index.js",
   "bin": {
     "iop-build-port-reporter": "./bin/port-reporter.js",
-    "iop-project-init": "./bin/project-init.js",
-    "iop-build-zip-archive": "./bin/zip.js"
+    "iop-build-zip-archive": "./bin/zip.js",
+    "iop-project-init": "./bin/project-init.js"
   },
   "directories": {
     "lib": "lib"
   },
   "scripts": {
+    "test": "vitest",
     "version": "version-everything && auto-changelog && git add -u"
   },
   "prettier": "@ideasonpurpose/prettier-config",
