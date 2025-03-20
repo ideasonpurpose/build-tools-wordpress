@@ -324,8 +324,11 @@ export default async (env) => {
 
     resolveLoader: {
       modules: [
-        path.resolve("../tools/node_modules"),
-        path.resolve("./node_modules"), // for local development when running outside of Docker
+        "node_modules",
+        new URL("../../build-tools-wordpress/node_modules", import.meta.url)
+          .pathname,
+        // path.resolve("../tools/node_modules"),
+        // path.resolve("./node_modules"), // for local development when running outside of Docker
       ],
     },
 
