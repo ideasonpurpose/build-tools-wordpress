@@ -29,6 +29,23 @@ Each project may optionally include an **ideasonpurpose.config.js** file in the 
 
 -->
 
+## Local Development
+
+Because this project makes use of bin scripts, conventional `npm link` workflows won't work correctly. To work on this code to work on a development project, change the project's package.json to install from a local file path, probably something like this:
+
+```json
+  "devDependencies": {
+    "@ideasonpurpose/build-tools-wordpress": "../../build-tools-wordpress"
+  }
+```
+
+Running a simple watch script to re-install on changes will make things somewhat seamless:
+
+```sh
+cd dev-project-working-dir
+npm chokidar-cli "../../build-tools-wordpress/**/*" -c "npm install"
+
+
 ### Additional Notes
 
 This project expects an entirely ES Module based environment and specifies all dependencies using standard ESM import syntax. Projects importing this file should set `"type": "module"` in their package.json files.
@@ -46,3 +63,4 @@ A GitHub action will auto-publish version-tagged releases to npm. In order to pu
 <a href="https://www.ideasonpurpose.com"><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/iop-logo-white-on-black-88px.png" height="44" align="top" alt="IOP Logo"></a><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/spacer.png" align="middle" width="4" height="54"> This project is actively developed and used in production at <a href="https://www.ideasonpurpose.com">Ideas On Purpose</a>.
 
 <!-- END IOP CREDIT BLURB -->
+```
