@@ -22,7 +22,6 @@ export default {
   entry: ["./js/main.js", "./js/admin.js", "./js/editor.js"],
   publicPath: `/wp-content/themes/${themeName}/dist/`,
 
-  sass: "sass-embedded",
   esTarget: "es2020",
 
   devtool: "source-map",

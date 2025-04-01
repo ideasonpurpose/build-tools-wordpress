@@ -23,12 +23,6 @@ import {
 import autoprefixer from "autoprefixer";
 import cssnano from "cssnano";
 
-/**
- * Sass flavors for conditional sass-loader implementations
- */
-// import * as nodeSass from "sass";
-// import * as dartSass from "sass-embedded";
-
 // Experimenting with this
 import DependencyExtractionWebpackPlugin from "@wordpress/dependency-extraction-webpack-plugin";
 
@@ -95,14 +89,6 @@ export default async (env) => {
 
   const proxy = isProduction ? {} : await devserverProxy(config);
 
-  setTimeout(() =>
-    console.log(
-      chalk.magenta.bold("sass implementation"),
-      chalk.yellow.bold(config.sass),
-      // config.sass === "sass" ? nodeSass : dartSass,
-    ),
-  );
-
   /**
    * `usePolling` is a placeholder, try and detect native Windows Docker mounts
    * since they don't support file-watching (no inotify events), if there's
@@ -121,95 +107,19 @@ export default async (env) => {
 
   const devtool = config.devtool || false;
 
-  const sassLibs = ["sass-embedded", "sass", "node-sass"];
-  const sassImplementation = sassLibs.includes(config.sass)
-    ? { implementation: config.sass }
-    : {};
-
-  // console.log({
-  //   metaurl: new URL("webpack/stats/index.html", import.meta.url),
-  //   config,
-  //   // devServerProxy: await devserverProxy(config),
-  // });
-
   return {
-    // stats: "errors-warnings",
     stats,
     module: {
       rules: [
-        // {
-        //   test: /\.(js|jsx|mjs)$/,
-        //   include: [
-        //     path.resolve(config.src),
-        //     path.resolve("../tools/node_modules"),
-        //     path.resolve("../site/node_modules"),
-        //   ],
-        //   exclude: function (module) {
-        //     const moduleRegex = new RegExp(
-        //       `node_modules/(${config.transpileDependencies.join("|")})`
-        //     );
-        //     return /node_modules/.test(module) && !moduleRegex.test(module);
-        //   },
-
-        //   /**
-        //    * EXPERIMENTAL!!
-        //    * If JS compilation breaks, try reverting this first.
-        //    */
-        //   loader: "esbuild-loader",
-        //   options: {
-        //     loader: "jsx",
-        //     target: "es2015",
-        //   },
-
-        /**
-         * Updated 2022-09, simpler
-         */
         {
           test: /\.[jt]sx?$/,
-          // test: /\.js$/,
           loader: "esbuild-loader",
           options: {
             loader: "jsx",
             target: config.esTarget,
           },
         },
-        // {
-        //   test: /\.tsx?$/,
-        //   loader: "esbuild-loader",
-        //   options: {
-        //     loader: "tsx",
-        //     target: config.esTarget,
-        //   },
-        // },
 
-        // use: {
-        //   loader: "babel-loader",
-        //   options: {
-        //     cacheDirectory: !isProduction,
-        //     sourceType: "unambiguous",
-        //     plugins: [
-        //       "@babel/plugin-syntax-dynamic-import",
-        //       ...(isProduction
-        //         ? []
-        //         : ["@babel/plugin-transform-react-jsx-source"]),
-        //     ],
-        //     presets: [
-        //       [
-        //         "@babel/preset-env",
-        //         {
-        //           forceAllTransforms: true,
-        //           useBuiltIns: "usage",
-        //           configPath: config.src,
-        //           corejs: 3,
-        //           modules: false,
-        //           debug: false,
-        //         },
-        //       ],
-        //       "@babel/preset-react",
-        //     ],
-        //   },
-        // },
-        // },
         {
           test: /\.(scss|css)$/,
           use: [
@@ -244,25 +154,14 @@ export default async (env) => {
             {
               loader: "sass-loader",
               options: {
-                ...sassImplementation,
-                // implementation: config.sass === "sass" ? nodeSass : dartSass,
-                // implementation: nodeSass,
-                // implementation: await import(config.sass),
+                implementation: "sass-embedded",
                 sourceMap: !isProduction,
                 warnRuleAsWarning: true,
                 webpackImporter: false,
                 sassOptions: {
-                  // api: "modern",
                   api: "modern-compiler",
 
-                  // includePaths: [
-                  //   path.resolve(config.src, "sass"),
-                  //   path.resolve(config.src),
-                  //   // path.resolve("../site/node_modules"),
-                  //   path.resolve("node_modules"),
-                  // ],
-                  // style: "expanded",
-                  // verbose: true,
+                  loadPaths: [path.resolve(config.src, "sass")],
                 },
               },
             },
@@ -327,8 +226,6 @@ export default async (env) => {
         "node_modules",
         new URL("../../build-tools-wordpress/node_modules", import.meta.url)
           .pathname,
-        // path.resolve("../tools/node_modules"),
-        // path.resolve("./node_modules"), // for local development when running outside of Docker
       ],
     },
 
@@ -372,31 +269,7 @@ export default async (env) => {
           },
         },
         reconnect: 30,
-        // webSocketURL: {
-        //   port: parseInt(process.env.PORT), // external port, so websockets hit the right endpoint
-        // },
       },
-      // webSocketServer: "ws",
-      // static: {
-      //   // TODO: Should contentBase be `false` when there's a proxy?
-      //   directory: path.join("/usr/src/site/", config.contentBase),
-      //   /*
-      //    * TODO: Poll options were enabled as a workaround for Docker-win volume inotify
-      //    *       issues. Looking to make this conditional...
-      //    *       Maybe defined `isWindows` or `hasiNotify` for assigning a value
-      //    *       Placeholder defined at the top of the file.
-      //    *       For now, `usePolling` is a boolean (set to true)
-      //    *       ref: https://github.com/docker/for-win/issues/56
-      //    *            https://www.npmjs.com/package/is-windows
-      //    *       TODO: Safe to remove?
-      //    *       TODO: Test on vanilla Windows (should now work in WSL)
-      //    */
-
-      //   watch: {
-      //     poll: usePolling && pollInterval,
-      //     ignored: ["node_modules", "vendor"],
-      //   },
-      // },
 
       devMiddleware: {
         index: false, // enable root proxying
