@@ -56,13 +56,13 @@ const versionDirName = `${archiveName}${archiveVersion}`.replace(/[ .]/g, "_");
 const zipFileName = `${versionDirName}.zip`;
 const zipFile = new URL(`_builds/${zipFileName}`, config.configFileUrl);
 
-console.log({
-  archiveName,
-  archiveVersion,
-  versionDirName,
-  zipFile,
-  zipFileName,
-});
+// console.log({
+//   archiveName,
+//   archiveVersion,
+//   versionDirName,
+//   zipFile,
+//   zipFileName,
+// });
 
 ensureFileSync(zipFile.pathname);
 const output = createWriteStream(zipFile);
