@@ -21,7 +21,8 @@
   "bin": {
     "iop-build-port-reporter": "./bin/port-reporter.js",
     "iop-build-zip-archive": "./bin/zip.js",
-    "iop-project-init": "./bin/project-init.js"
+    "iop-project-init": "./bin/project-init.js",
+    "iop-html-php-prettier": "./bin/format-php-prettier.js"
   },
   "directories": {
     "lib": "lib"
