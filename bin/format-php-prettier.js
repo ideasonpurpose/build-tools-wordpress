@@ -23,25 +23,54 @@ const phpOptions = prettierConfig.overrides.find(
   (o) => o.files === "*.php",
 )?.options;
 
-function tokenizeHTML(htmlContent) {
+/**
+ * Replaces PHP Code Blocks with tokens, returns tokenized HTML and an object containing
+ * PHP Code Blocks
+ *
+ * For code blocks between tags (bounded by > & <) tokens will be self-closing HTML
+ * tags, similar to this: <php_14______ /> PHP Code blocks at the beginning and end of
+ * the file will be tokenized as self-closing if they preceed or follow an HTML tag.
+ *
+ * All other PHP Code Blocks are represented as HTML attribute-safe padded strings, up
+ * to 80 characters long.
+ *
+ * NOTE: Because Prettier's HTML formatter will always add a space before self-closing
+ * tags' closing slash, we just include the space in the token to prevent it from
+ * being mutilated by the HTML formatting step. Cleaner than adding a string.replace
+ * to unTokenizeHTML().
+ */
+export function tokenizeHTML(htmlContent) {
   const phpCodeBlocks = {};
   let tokenCount = 0;
 
-  // Tokens are end-padded to the length of the span, up to 80 characters
+  // const pattern = /<\?(?:php|=)[\s\S]*?\?>/gs;
+  // const pattern =
+  //   /(?<before>(?:[^\s]|\s|^)\s*)(?<php><\?(?:php|=).*?(?:\?>|$))(?<after>(?:\s*)[^\s]|$)/gs;
+  const pattern =
+    /((?:[^\s]|\s|^)\s*)(<\?(?:php|=).*?(?:\?>|$))((?:\s*)[^\s]|$)/gs;
+
   const tokenizedHTML = htmlContent.replace(
-    /<\?(?:php|=)[\s\S]*?\?>/gs,
-    (phpCodeBlock) => {
-      const codeLength = Math.min(phpCodeBlock.length, 80);
-      const token = `__php_${tokenCount++}__`.padEnd(codeLength, "_");
+    pattern,
+    (string, before, phpCodeBlock, after, offset) => {
+      const start = [">", ""].includes(before.trim()) ? "<" : "_";
+      const end = ["<", ""].includes(after.trim()) ? " />" : "___";
+
+      console.log({offset,  string, before, phpCodeBlock, after, offset });
+
+      // end-pad the token to the lengh of the span, up to 80 characters
+      const codeLength = Math.min(phpCodeBlock.length, 80 - end.length);
+      const token =
+        `${start}php_${tokenCount++}__`.padEnd(codeLength, "_") + end;
       phpCodeBlocks[token] = phpCodeBlock;
-      return token;
+      return `${before}${token}${after}`;
     },
   );
 
+  console.log({ tokenizedHTML, phpCodeBlocks });
   return { tokenizedHTML, phpCodeBlocks };
 }
 
-function unTokenizeHTML(htmlContent, tokens) {
+export function unTokenizeHTML(htmlContent, tokens) {
   let phpContent = htmlContent;
   for (const token in tokens) {
     phpContent = phpContent.replace(new RegExp(token, "g"), tokens[token]);
