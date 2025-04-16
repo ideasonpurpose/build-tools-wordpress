@@ -1,6 +1,6 @@
 {
   "name": "@ideasonpurpose/build-tools-wordpress",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "Build scripts and dependencies for IOP's WordPress development environments.",
   "homepage": "https://github.com/ideasonpurpose/build-tools-wordpress#readme",
   "bugs": {
