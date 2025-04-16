@@ -44,7 +44,7 @@ Running a simple watch script to re-install on changes will make things somewhat
 ```sh
 cd dev-project-working-dir
 npm chokidar-cli "../../build-tools-wordpress/**/*" -c "npm install"
-
+```
 
 ### Additional Notes
 
