@@ -46,27 +46,50 @@ export function tokenizeHTML(htmlContent) {
   // const pattern = /<\?(?:php|=)[\s\S]*?\?>/gs;
   // const pattern =
   //   /(?<before>(?:[^\s]|\s|^)\s*)(?<php><\?(?:php|=).*?(?:\?>|$))(?<after>(?:\s*)[^\s]|$)/gs;
+  // const pattern =
+  //   /((?:[^\s]|\s|^)\s*)(<\?(?:php|=).*?(?:\?>|$))((?:\s*)[^\s]|$)/gms;
+  // // const pattern = /([^\s]+)\s*(<\?(?:php|=).*?(?:\?>|$))\s*([^\s]*)/gms;
+  // const pattern =
+  //   /([^\s]?\s*)?(<\?(?:php|=).*?(?:\?>|$))((?:\s*)[^\s]|$)/gms;
   const pattern =
-    /((?:[^\s]|\s|^)\s*)(<\?(?:php|=).*?(?:\?>|$))((?:\s*)[^\s]|$)/gs;
+    /(?<=((?:[^\s]|\s|^)\s*))(<\?(?:php|=).*?\?>)(?=((?:\s*)[^\s]|$))/gms;
 
-  const tokenizedHTML = htmlContent.replace(
+  let tokenizedHTML = htmlContent.replace(
     pattern,
     (string, before, phpCodeBlock, after, offset) => {
       const start = [">", ""].includes(before.trim()) ? "<" : "_";
       const end = ["<", ""].includes(after.trim()) ? " />" : "___";
 
-      console.log({offset,  string, before, phpCodeBlock, after, offset });
-
-      // end-pad the token to the lengh of the span, up to 80 characters
+      // end-pad the token to the length of the span, up to 80 characters
       const codeLength = Math.min(phpCodeBlock.length, 80 - end.length);
       const token =
         `${start}php_${tokenCount++}__`.padEnd(codeLength, "_") + end;
       phpCodeBlocks[token] = phpCodeBlock;
-      return `${before}${token}${after}`;
+
+      return token;
     },
   );
 
-  console.log({ tokenizedHTML, phpCodeBlocks });
+  /**
+   * special case followup for open-ended PHP tags at the end of the document
+   * TODO: Merge this back up into a single pattern
+   */
+  tokenizedHTML = tokenizedHTML.replace(
+    /(?<=((?:[^\s]|\s|^)\s*))(<\?(?:php|=).*$)/gms,
+
+    (string, before, phpCodeBlock, offset) => {
+      const start = [">", ""].includes(before.trim()) ? "<" : "_";
+      const end = start === "<" ? " />" : "___";
+
+      const codeLength = Math.min(phpCodeBlock.length, 80 - end.length);
+      const token =
+        `${start}php_${tokenCount++}__`.padEnd(codeLength, "_") + end;
+      phpCodeBlocks[token] = phpCodeBlock;
+
+      return token;
+    },
+  );
+
   return { tokenizedHTML, phpCodeBlocks };
 }
 
