@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 
 import { readFile } from "node:fs/promises";
 
-import { tokenizeHTML } from "../bin/format-php-prettier.js";
+import { tokenizeHTML, unTokenizeHTML } from "../bin/format-php-prettier.js";
 
 describe("HTML-PHP Prettier", () => {
   test("All tokens exist", async () => {
@@ -48,7 +48,6 @@ describe("HTML-PHP Prettier", () => {
     expect(tokens).toHaveLength(1);
   });
 
-
   test("bare attribute in tag", async () => {
     const input = (
       await readFile(
@@ -67,5 +66,23 @@ describe("HTML-PHP Prettier", () => {
     expect(tokens[4]).toMatch(/^<php_\d+_* \/>$/);
 
     expect(tokens).toHaveLength(5);
+  });
+
+  /**
+   * If code blocks contain JS capture-group replacement strings
+   * those strings will vanish from the output.
+   */
+  test("$ capture group references bug", async () => {
+    const input = (
+      await readFile("./test/fixtures/format-php-prettier/regex-string-bug.php")
+    ).toString();
+
+    const { tokenizedHTML, phpCodeBlocks } = tokenizeHTML(input);
+
+    const formattedContent = unTokenizeHTML(tokenizedHTML, phpCodeBlocks);
+
+    expect(formattedContent).toContain("'a $'");
+    expect(formattedContent).toContain("'b $&'");
+    expect(formattedContent).toContain("'$0 $1 $2 $3'");
   });
 });

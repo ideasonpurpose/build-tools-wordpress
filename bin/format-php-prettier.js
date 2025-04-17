@@ -73,6 +73,7 @@ export function tokenizeHTML(htmlContent) {
   /**
    * special case followup for open-ended PHP tags at the end of the document
    * TODO: Merge this back up into a single pattern
+   *       Q. Is the 'm' flag breaking the meaning of ^ and $?
    */
   tokenizedHTML = tokenizedHTML.replace(
     /(?<=((?:[^\s]|\s|^)\s*))(<\?(?:php|=).*$)/gms,
@@ -93,10 +94,13 @@ export function tokenizeHTML(htmlContent) {
   return { tokenizedHTML, phpCodeBlocks };
 }
 
-export function unTokenizeHTML(htmlContent, tokens) {
-  let phpContent = htmlContent;
-  for (const token in tokens) {
-    phpContent = phpContent.replace(new RegExp(token, "g"), tokens[token]);
+export function unTokenizeHTML(tokenizedHTML, phpCodeBlocks) {
+  let phpContent = tokenizedHTML;
+  for (const token in phpCodeBlocks) {
+    phpContent = phpContent.replace(
+      new RegExp(token, "g"),
+      phpCodeBlocks[token].replace(/\$/g, "$$$$"),
+    );
   }
   return phpContent;
 }
