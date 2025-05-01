@@ -23,16 +23,26 @@ const phpOptions = prettierConfig.overrides.find(
   (o) => o.files === "*.php",
 )?.options;
 
+const isInTag = (html, offset) => {
+  if (offset === 0) return false;
+
+  for (let i = offset - 1; i >= 0; i--) {
+    if (html[i] === "<") {
+      return true;
+    } else if (html[i] === ">") {
+      return false;
+    }
+  }
+  return false;
+};
+
 /**
- * Replaces PHP Code Blocks with tokens, returns tokenized HTML and an object containing
- * PHP Code Blocks
+ * Replaces all PHP Code Blocks with iterated tokens.
  *
- * For code blocks between tags (bounded by > & <) tokens will be self-closing HTML
- * tags, similar to this: <php_14______ /> PHP Code blocks at the beginning and end of
- * the file will be tokenized as self-closing if they preceed or follow an HTML tag.
+ * Code Blocks inside HTML tags will be replaced with attribute-safe tokens: _php_4____
+ * All other Code Blocks will be replaced with tag-shaped tokens: <php_4___ />
  *
- * All other PHP Code Blocks are represented as HTML attribute-safe padded strings, up
- * to 80 characters long.
+ * Tokens will match the length of their Code Blocks up to 80 characters.
  *
  * NOTE: Because Prettier's HTML formatter will always add a space before self-closing
  * tags' closing slash, we just include the space in the token to prevent it from
@@ -40,8 +50,27 @@ const phpOptions = prettierConfig.overrides.find(
  * to unTokenizeHTML().
  */
 export function tokenizeHTML(htmlContent) {
+  let tokenizedHTML = "";
   const phpCodeBlocks = {};
   let tokenCount = 0;
+
+  /**
+   * Check previous content for a '>' or '<' then return either an attribute-safe
+   * token: _php_4____ or a tag-shaped token: <php_4___ />
+   *
+   * NOTE: This uses tokenCount from the enclosing scope
+   */
+  const tokenizeCodeBlock = (phpCodeBlock, prevContent) => {
+    let start = "<";
+    let end = " />";
+    if (isInTag(prevContent, prevContent.length)) {
+      start = "_";
+      end = "___";
+    }
+
+    const codeLength = Math.min(phpCodeBlock.length, 80) - end.length;
+    return `${start}php_${tokenCount++}__`.padEnd(codeLength, "_") + end;
+  };
 
   // const pattern = /<\?(?:php|=)[\s\S]*?\?>/gs;
   // const pattern =
@@ -51,45 +80,28 @@ export function tokenizeHTML(htmlContent) {
   // // const pattern = /([^\s]+)\s*(<\?(?:php|=).*?(?:\?>|$))\s*([^\s]*)/gms;
   // const pattern =
   //   /([^\s]?\s*)?(<\?(?:php|=).*?(?:\?>|$))((?:\s*)[^\s]|$)/gms;
-  const pattern =
-    /(?<=((?:[^\s]|\s|^)\s*))(<\?(?:php|=).*?\?>)(?=((?:\s*)[^\s]|$))/gms;
+  // const pattern =
+  //   /(?<=((?:[^\s]|\s|^)\s*))(<\?(?:php|=).*?\?>)(?=((?:\s*)[^\s]|$))/gms;
+  // try removing look ahead/behind
+  const pattern = /(<\?(?:php|=).*?\?>)/gms;
 
-  let tokenizedHTML = htmlContent.replace(
-    pattern,
-    (string, before, phpCodeBlock, after, offset) => {
-      const start = [">", ""].includes(before.trim()) ? "<" : "_";
-      const end = ["<", ""].includes(after.trim()) ? " />" : "___";
+  // const regex = new RegExp(/<\?(?:php|=).*?\?>/, "gs");
+  // Trying to capture open-ended PHP codeBlocks in a single regexp
+  const regex = new RegExp(/<\?(?:php|=).*?(?:\?>|$)/, "gs");
 
-      // end-pad the token to the length of the span, up to 80 characters
-      const codeLength = Math.min(phpCodeBlock.length, 80 - end.length);
-      const token =
-        `${start}php_${tokenCount++}__`.padEnd(codeLength, "_") + end;
-      phpCodeBlocks[token] = phpCodeBlock;
+  let match;
+  let token;
+  let lastIndex = 0;
+  while ((match = regex.exec(htmlContent)) !== null) {
+    tokenizedHTML += htmlContent.slice(lastIndex, match.index);
 
-      return token;
-    },
-  );
+    token = tokenizeCodeBlock(match[0], tokenizedHTML);
+    phpCodeBlocks[token] = match[0];
+    tokenizedHTML += token;
 
-  /**
-   * special case followup for open-ended PHP tags at the end of the document
-   * TODO: Merge this back up into a single pattern
-   *       Q. Is the 'm' flag breaking the meaning of ^ and $?
-   */
-  tokenizedHTML = tokenizedHTML.replace(
-    /(?<=((?:[^\s]|\s|^)\s*))(<\?(?:php|=).*$)/gms,
-
-    (string, before, phpCodeBlock, offset) => {
-      const start = [">", ""].includes(before.trim()) ? "<" : "_";
-      const end = start === "<" ? " />" : "___";
-
-      const codeLength = Math.min(phpCodeBlock.length, 80 - end.length);
-      const token =
-        `${start}php_${tokenCount++}__`.padEnd(codeLength, "_") + end;
-      phpCodeBlocks[token] = phpCodeBlock;
-
-      return token;
-    },
-  );
+    lastIndex = match.index + match[0].length;
+  }
+  tokenizedHTML += htmlContent.slice(lastIndex);
 
   return { tokenizedHTML, phpCodeBlocks };
 }

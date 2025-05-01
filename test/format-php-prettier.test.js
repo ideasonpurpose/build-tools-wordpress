@@ -55,9 +55,11 @@ describe("HTML-PHP Prettier", () => {
       )
     ).toString();
 
-    const { phpCodeBlocks: codeBlocks } = tokenizeHTML(input);
+    const { tokenizedHTML, phpCodeBlocks  } = tokenizeHTML(input);
 
-    const tokens = Object.keys(codeBlocks);
+    // console.log({input, tokenizedHTML})
+
+    const tokens = Object.keys(phpCodeBlocks);
 
     expect(tokens[0]).toMatch(/^_php_\d+_*$/);
     expect(tokens[1]).toMatch(/^_php_\d+_*$/);
@@ -84,5 +86,53 @@ describe("HTML-PHP Prettier", () => {
     expect(formattedContent).toContain("'a $'");
     expect(formattedContent).toContain("'b $&'");
     expect(formattedContent).toContain("'$0 $1 $2 $3'");
+  });
+
+  /**
+   * Not sure what's going on here, but this breaks and returns with the last replacement token still in place.
+   * Something to do with the overall length, if the aaa...aaa attribute is shortened it formats correctly.
+   *
+   * Something about this file, likely the length, is causing it to fail to find
+   * and restore the last PHP token. Trying to format this:
+   *
+   *
+   *   <i aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa="<?= a('a') ?>"><?= b('b') ?> : <?= c('c') ?></i>
+   *
+   * ...ends up returning something like this:
+   *
+   *   <i aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa="<?= a('a') ?>"
+   *     ><?= b('b') ?> : _php_3_______
+   *   /></i>
+   *
+   * It seems to have something to do with HTML whitespace preservation, I can't get this to
+   * happen with a div
+   */
+  test("whitespace orphaned tokens", async () => {
+    const input = (
+      await readFile(
+        "./test/fixtures/format-php-prettier/length-orphaned-token-bug.php",
+      )
+    ).toString();
+
+    const { tokenizedHTML, phpCodeBlocks } = tokenizeHTML(input);
+
+    const formattedContent = unTokenizeHTML(tokenizedHTML, phpCodeBlocks);
+
+    // console.log(input, tokenizedHTML, phpCodeBlocks, formattedContent);
+
+    expect(formattedContent).toContain("<?= c('c') ?>");
+  });
+
+  test("tokenization error (drill down from whitespace orphaned tokens)", async () => {
+    const input = "<?= b('b') ?> : <?= c('c') ?>";
+    const { tokenizedHTML, phpCodeBlocks } = tokenizeHTML(input);
+
+    // console.log({input, tokenizedHTML, phpCodeBlocks});
+
+
+    expect(tokenizedHTML).toContain("<php_0____ />");
+    expect(tokenizedHTML).toContain("<php_1____ />");
+    expect(phpCodeBlocks).toHaveProperty("<php_0____ />");
+    expect(phpCodeBlocks).toHaveProperty("<php_1____ />");
   });
 });
