@@ -128,12 +128,13 @@ export default async (env) => {
               loader: "css-loader",
               options: {
                 import: false, // imports already handled by Sass or PostCSS
-                // sourceMap: !isProduction,
+                sourceMap: !isProduction,
               },
             },
             {
               loader: "postcss-loader",
               options: {
+                sourceMap: !isProduction,
                 postcssOptions: {
                   plugins: isProduction
                     ? [
@@ -144,13 +145,6 @@ export default async (env) => {
                 },
               },
             },
-            // {
-            //   loader: "resolve-url-loader",
-            //   options: {
-            //     // sourceMap: true,
-            //     // debug: true,
-            //   },
-            // },
             {
               loader: "sass-loader",
               options: {
