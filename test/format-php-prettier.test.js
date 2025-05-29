@@ -6,6 +6,16 @@ import { readFile } from "node:fs/promises";
 
 import { tokenizeHTML, unTokenizeHTML } from "../bin/format-php-prettier.js";
 
+import prettier from "prettier";
+import prettierConfig from "@ideasonpurpose/prettier-config" with { type: "json" };
+
+/**
+ * Prettier API doesn't recognize overrides, so we extract them
+ */
+const htmlOptions = prettierConfig.overrides.find(
+  (o) => o.files === "*.html",
+)?.options;
+
 describe("HTML-PHP Prettier", () => {
   test("All tokens exist", async () => {
     const input = (
@@ -55,7 +65,7 @@ describe("HTML-PHP Prettier", () => {
       )
     ).toString();
 
-    const { tokenizedHTML, phpCodeBlocks  } = tokenizeHTML(input);
+    const { tokenizedHTML, phpCodeBlocks } = tokenizeHTML(input);
 
     // console.log({input, tokenizedHTML})
 
@@ -129,10 +139,59 @@ describe("HTML-PHP Prettier", () => {
 
     // console.log({input, tokenizedHTML, phpCodeBlocks});
 
-
     expect(tokenizedHTML).toContain("<php_0____ />");
     expect(tokenizedHTML).toContain("<php_1____ />");
     expect(phpCodeBlocks).toHaveProperty("<php_0____ />");
     expect(phpCodeBlocks).toHaveProperty("<php_1____ />");
+  });
+
+  /**
+ *
+ * Tag-style tokens towards the end of long lines may be line-wrapped by Prettier's HTML
+ * formatting, where the token `<php_4___ />` ends up as `<php_4___ \n    />`
+ *
+ * That line-break means a simple string match won't work and the PHP token must be converted
+ * to a regexp that matches more than one whitespace character.
+ *
+ * This example is tricky because the <time> is an inline tag so whitespace is significant. The inner
+ * PHP codeblock has a space before it, but not after: <time> <?php ... ?></time>
+ * More here: @link https://prettier.io/blog/2018/11/07/1.15.0.html#whitespace-sensitive-formatting
+ *
+ * Input:
+ *     <time class="type-eyebrow" datetime="<?= get_the_date('c') ?>"> <?= date('F j, Y', get_post_time()) ?></time>
+ *
+ * Expected:
+ *        <time class="type-eyebrow" datetime="<?= get_the_date('c') ?>">
+ *          <?= date('F j, Y', get_post_time()) ?></time>
+ *
+ * This is an edge case on line-length.
+ *   TODO: I think the token replacement pattern needs to replace the literal space between ___ and /> with a regex token
+ *         so any acquired whitespace from prettier's HTML formatter.
+ *
+ */
+  test("extra space bug", async () => {
+    const input = `<time class="type" datetime="<?= get_the_date('c') ?>"> <?= date('F j, Y', get_post_time()) ?></time>`;
+    // const input = `<time class="typ" datetime="<?= get_the_date('c') ?>"> <?= date('F j, Y', get_post_time()) ?></time>`;
+    const { tokenizedHTML, phpCodeBlocks } = tokenizeHTML(input);
+
+    const htmlFormatted = await prettier.format(tokenizedHTML, {
+      ...prettierConfig,
+      ...htmlOptions,
+      parser: "html",
+      embeddedLanguageFormatting: "auto",
+    });
+
+    const formattedContent = unTokenizeHTML(htmlFormatted, phpCodeBlocks);
+    console.log({
+      phpCodeBlocks,
+      tokenizedHTML,
+      htmlFormatted,
+      formattedContent,
+    });
+
+    expect(tokenizedHTML).toContain("_php_0___");
+    expect(tokenizedHTML).toContain("<php_1___");
+    expect(htmlFormatted).toContain("_____\n/>");
+    expect(formattedContent).not.toContain("<php_1___");
   });
 });

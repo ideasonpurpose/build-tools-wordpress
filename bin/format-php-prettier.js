@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+//@ts-check
+
 /**
  * This is an experimental proof-of-concept for formatting mixed HTML & PHP
  * files from a single function.
@@ -109,8 +111,15 @@ export function tokenizeHTML(htmlContent) {
 export function unTokenizeHTML(tokenizedHTML, phpCodeBlocks) {
   let phpContent = tokenizedHTML;
   for (const token in phpCodeBlocks) {
+    /**
+     * Create a pattern from token that matches whitespace breaks resulting
+     * from Prettier's HTML formatting, usually on very long lines.
+     * eg. the token `<php_4___ />` formats to `<php_4___ \n    />`
+     * This changes the token to `/<php_4___\s+\/>/g`
+     */
+    const regexToken = new RegExp(token.replace("_ />", "_\\s+\\/>"), "g");
     phpContent = phpContent.replace(
-      new RegExp(token, "g"),
+      regexToken,
       phpCodeBlocks[token].replace(/\$/g, "$$$$"),
     );
   }
@@ -128,6 +137,7 @@ async function formatHTMLThenPHP(filepath) {
       ...prettierConfig,
       ...htmlOptions,
       parser: "html",
+      embeddedLanguageFormatting: "auto",
     });
 
     const phpUnTokenized = unTokenizeHTML(htmlFormatted, phpCodeBlocks);
@@ -136,6 +146,7 @@ async function formatHTMLThenPHP(filepath) {
       ...prettierConfig,
       ...phpOptions,
       parser: "php",
+      embeddedLanguageFormatting: "auto",
     });
 
     await writeFile(filepath, phpFormatted, "utf8");
