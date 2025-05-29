@@ -1,6 +1,6 @@
 # @ideasonpurpose/build-tools-wordpress
 
-#### Version 2.1.7
+#### Version 2.1.6
 
 [![NPM Version](https://img.shields.io/npm/v/%40ideasonpurpose%2Fbuild-tools-wordpress?logo=npm)](https://www.npmjs.com/package/@ideasonpurpose/build-tools-wordpress)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ideasonpurpose/build-tools-wordpress/npm-publish.yml?logo=github&logoColor=white)](https://github.com/ideasonpurpose/build-tools-wordpress#readme)
@@ -31,7 +31,7 @@ Each project may optionally include an **ideasonpurpose.config.js** file in the 
 
 ## Local Development
 
-Because this project makes use of bin scripts, conventional `npm link` workflows won't work correctly. To work on this code to work on a development project, change the project's package.json to install from a local file path, probably something like this:
+Because this project makes use of bin scripts, conventional `npm link` workflows won't work correctly. To work on this code in a development project, change the project's package.json to install from a local file path, probably something like this:
 
 ```json
   "devDependencies": {
