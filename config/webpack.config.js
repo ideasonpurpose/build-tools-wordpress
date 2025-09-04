@@ -249,7 +249,7 @@ export default async (env) => {
       allowedHosts: "all",
       port: "auto",
       // hot: true, // TODO: What does 'only' do? https://webpack.js.org/configuration/dev-server/#devserverhot
-      hot: "only", // TODO: What does 'only' do? https://webpack.js.org/configuration/dev-server/#devserverhot
+      hot: true, // Enable hot module replacement with fallback to full reload
       client: {
         logging: "info",
         overlay: {
