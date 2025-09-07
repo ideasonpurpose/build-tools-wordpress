@@ -107,6 +107,15 @@ export default async (env) => {
 
   const devtool = config.devtool || false;
 
+  // Debug: Log the watchFiles paths
+  const watchPath = path.resolve(config.src, "..") + "/**/*.{php,html,svg,json}";
+  console.log(chalk.cyan("🔍 Watching files:"), watchPath);
+  console.log(chalk.cyan("📁 Theme directory:"), path.resolve(config.src, ".."));
+
+  // Temporarily disable polling to test native file watching
+  const usePollingDebug = false; // Set to false to test without polling
+  const pollIntervalDebug = 400;
+
   return {
     stats,
     module: {
@@ -278,8 +287,6 @@ export default async (env) => {
           if (/.+(hot-update)\.(js|json|js\.map)$/.test(filePath)) {
             return false;
           }
-          // SHORT_CIRCUIT FOR TESTING
-          return true;
 
           if (/.+\.(svg|json|php|jpg|png)$/.test(filePath)) {
             const fileStat = statSync(filePath, { throwIfNoEntry: false });
@@ -339,6 +346,9 @@ export default async (env) => {
 
         //  devServer.internalIP('v4').then(ip => console.log('!!!!!!', ip));
 
+        // Debug: Log watchFiles configuration
+        console.log(chalk.yellow("📋 WatchFiles configuration:"), devServer.options.watchFiles);
+
         /**
          * The `/inform` route is an annoying bit of code. Here's why:
          * Ubiquity Wi-fi hardware frequently spams the shit out of their
@@ -373,7 +383,12 @@ export default async (env) => {
 
       watchFiles: {
         paths: [
-          path.resolve(config.src, "../**/*.{php,html,svg,json}"), // WordPress
+          // Watch all PHP, HTML, SVG, and JSON files in the theme directory
+          path.resolve(config.src, "..") + "/**/*.{php,html,svg,json}",
+          // Also watch specific WordPress theme files
+          path.resolve(config.src, "../*.php"), // Root PHP files like functions.php, index.php
+          path.resolve(config.src, "../**/*.php"), // All PHP files in subdirectories
+          path.resolve(config.src, "../**/*.json"), // All JSON files
         ],
         options: {
           ignored: [
@@ -382,14 +397,10 @@ export default async (env) => {
             "**/node_modules/**",
             "**/dist/**",
           ],
-          ignoreInitial: true,
+          ignoreInitial: false, // Allow initial file discovery
           ignorePermissionErrors: true,
-          /**
-           * TODO: Can polling be removed everywhere?
-           * @link  https://github.com/docker/for-win/issues/56#issuecomment-576749639
-           */
-          usePolling,
-          interval: pollInterval,
+          usePolling: usePollingDebug,
+          interval: pollIntervalDebug,
         },
       },
 
