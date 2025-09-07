@@ -16,7 +16,7 @@ import {
   buildConfig,
   DependencyManifestPlugin,
   devserverProxy,
-  findLocalPort,
+  // findLocalPort,
   WatchRunReporterPlugin,
 } from "../index.js";
 
@@ -108,13 +108,17 @@ export default async (env) => {
   const devtool = config.devtool || false;
 
   // Debug: Log the watchFiles paths
-  const watchPath = path.resolve(config.src, "..") + "/**/*.{php,html,svg,json}";
+  const watchPath =
+    path.resolve(config.src, "..") + "/**/*.{php,html,svg,json}";
   console.log(chalk.cyan("🔍 Watching files:"), watchPath);
-  console.log(chalk.cyan("📁 Theme directory:"), path.resolve(config.src, ".."));
+  console.log(
+    chalk.cyan("📁 Theme directory:"),
+    path.resolve(config.src, ".."),
+  );
 
-  // Temporarily disable polling to test native file watching
-  const usePollingDebug = false; // Set to false to test without polling
-  const pollIntervalDebug = 400;
+  // // Temporarily disable polling to test native file watching
+  // const usePollingDebug = false; // Set to false to test without polling
+  // const pollIntervalDebug = 400;
 
   return {
     stats,
@@ -257,7 +261,6 @@ export default async (env) => {
       host: "0.0.0.0",
       allowedHosts: "all",
       port: "auto",
-      // hot: true, // TODO: What does 'only' do? https://webpack.js.org/configuration/dev-server/#devserverhot
       hot: true, // Enable hot module replacement with fallback to full reload
       client: {
         logging: "info",
@@ -288,6 +291,10 @@ export default async (env) => {
             return false;
           }
 
+          // // SHORT_CIRCUIT FOR TESTING
+          // console.log("DEBUG writeToDisk:", { filePath });
+          // return true;
+
           if (/.+\.(svg|json|php|jpg|png)$/.test(filePath)) {
             const fileStat = statSync(filePath, { throwIfNoEntry: false });
 
@@ -316,6 +323,11 @@ export default async (env) => {
               // console.log("DEBUG writeToDisk:", { cached: relPath });
             }
           }
+
+          // SHORT_CIRCUIT FOR TESTING
+          return true;
+
+          console.log("DEBUG writeToDisk:", { filePath });
           return false;
         },
         // stats,
@@ -338,16 +350,6 @@ export default async (env) => {
       },
 
       setupMiddlewares: (middlewares, devServer) => {
-        // devServer.compiler.options.devServer.port =  devServer.options.port;
-        // devServer.compiler._devServer =  devServer;
-        // if (!devServer) {
-        //   throw new Error("webpack-dev-server is not defined");
-        // }
-
-        //  devServer.internalIP('v4').then(ip => console.log('!!!!!!', ip));
-
-        // Debug: Log watchFiles configuration
-        console.log(chalk.yellow("📋 WatchFiles configuration:"), devServer.options.watchFiles);
 
         /**
          * The `/inform` route is an annoying bit of code. Here's why:
@@ -362,9 +364,12 @@ export default async (env) => {
 
         /**
          * The "/webpack/reload" endpoint will trigger a full devServer refresh
-         * Originally from our Browsersync implementation:
          *
-         * https://github.com/ideasonpurpose/wp-theme-init/blob/ad8039c9757ffc3a0a0ed0adcc616a013fdc8604/src/ThemeInit.php#L202
+         * @link https://github.com/webpack/webpack-dev-server/blob/master/migration-v5.md#-breaking-changes
+         * @link https://github.com/webpack/webpack-dev-server/issues/3121#issuecomment-3264080704
+         *
+         * Originally from our Browsersync implementation:
+         * @link https://github.com/ideasonpurpose/wp-theme-init/blob/ad8039c9757ffc3a0a0ed0adcc616a013fdc8604/src/ThemeInit.php#L202
          */
         devServer.app.get("/webpack/reload", (req, res) => {
           console.log(
@@ -373,8 +378,9 @@ export default async (env) => {
 
           devServer.sendMessage(
             devServer.webSocketServer.clients,
-            "content-changed",
+            "static-changed",
           );
+
           res.json({ status: "Reloading!" });
         });
 
@@ -385,10 +391,6 @@ export default async (env) => {
         paths: [
           // Watch all PHP, HTML, SVG, and JSON files in the theme directory
           path.resolve(config.src, "..") + "/**/*.{php,html,svg,json}",
-          // Also watch specific WordPress theme files
-          path.resolve(config.src, "../*.php"), // Root PHP files like functions.php, index.php
-          path.resolve(config.src, "../**/*.php"), // All PHP files in subdirectories
-          path.resolve(config.src, "../**/*.json"), // All JSON files
         ],
         options: {
           ignored: [
@@ -399,8 +401,8 @@ export default async (env) => {
           ],
           ignoreInitial: false, // Allow initial file discovery
           ignorePermissionErrors: true,
-          usePolling: usePollingDebug,
-          interval: pollIntervalDebug,
+          usePolling: false,
+          // interval: pollIntervalDebug,
         },
       },
 
