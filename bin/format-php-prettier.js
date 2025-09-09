@@ -126,6 +126,16 @@ export function unTokenizeHTML(tokenizedHTML, phpCodeBlocks) {
   return phpContent;
 }
 
+/**
+ * Formats a mixed HTML & PHP file with these steps:
+ *  1. Tokenize PHP Blocks as HTML-safe and attribute-safe strings
+ *  2. Format the result as HTML
+ *  3. Un-tokenize HTML back to PHP
+ *  4. Format again as PHP
+ *  5. Overwrite the file
+ *
+ * @param {string} filepath - The path to the file to format (must be a valid file path).
+ */
 async function formatHTMLThenPHP(filepath) {
   try {
     const startTime = process.hrtime.bigint();
