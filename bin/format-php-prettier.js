@@ -11,6 +11,9 @@
 import prettier from "prettier";
 import prettierConfig from "@ideasonpurpose/prettier-config" with { type: "json" };
 
+// Add dynamic import for the plugin
+const phpPlugin = (await import("@prettier/plugin-php")).default;
+
 import { readFile, writeFile } from "fs/promises";
 import { resolve, basename } from "path";
 
@@ -157,6 +160,7 @@ async function formatHTMLThenPHP(filepath) {
       ...phpOptions,
       parser: "php",
       embeddedLanguageFormatting: "auto",
+      plugins: [phpPlugin],  // Explicitly pass the plugin
     });
 
     await writeFile(filepath, phpFormatted, "utf8");
