@@ -34,9 +34,9 @@ describe("HTML-PHP Prettier", () => {
       await readFile("./test/fixtures/format-php-prettier/basic-html.php")
     ).toString();
 
-    const { phpCodeBlocks: codeBlocks } = tokenizeHTML(input);
+    const { phpCodeBlocks } = tokenizeHTML(input);
 
-    const tokens = Object.keys(codeBlocks);
+    const tokens = Array.from(phpCodeBlocks.keys());
 
     expect(tokens[0]).toMatch(/^<php_\d+_* \/>$/);
     expect(tokens[1]).toMatch(/^_php_\d+_*$/);
@@ -51,9 +51,9 @@ describe("HTML-PHP Prettier", () => {
       )
     ).toString();
 
-    const { phpCodeBlocks: codeBlocks } = tokenizeHTML(input);
+    const { phpCodeBlocks } = tokenizeHTML(input);
 
-    const tokens = Object.keys(codeBlocks);
+    const tokens = Array.from(phpCodeBlocks.keys());
 
     expect(tokens).toHaveLength(1);
   });
@@ -69,7 +69,8 @@ describe("HTML-PHP Prettier", () => {
 
     // console.log({input, tokenizedHTML})
 
-    const tokens = Object.keys(phpCodeBlocks);
+    // const tokens = Object.keys(phpCodeBlocks);
+    const tokens = Array.from(phpCodeBlocks.keys());
 
     expect(tokens[0]).toMatch(/^_php_\d+_*$/);
     expect(tokens[1]).toMatch(/^_php_\d+_*$/);
@@ -141,8 +142,8 @@ describe("HTML-PHP Prettier", () => {
 
     expect(tokenizedHTML).toContain("<php_0____ />");
     expect(tokenizedHTML).toContain("<php_1____ />");
-    expect(phpCodeBlocks).toHaveProperty("<php_0____ />");
-    expect(phpCodeBlocks).toHaveProperty("<php_1____ />");
+    expect(phpCodeBlocks.has("<php_0____ />")).toBe(true);
+    expect(phpCodeBlocks.has("<php_1____ />")).toBe(true);
   });
 
   /**

@@ -11,8 +11,10 @@
 import prettier from "prettier";
 import prettierConfig from "@ideasonpurpose/prettier-config" with { type: "json" };
 
-// Add dynamic import for the plugin
-const phpPlugin = (await import("@prettier/plugin-php")).default;
+const phpPlugin = await import("@prettier/plugin-php");
+
+// Explicitly reset the plugin because global installs can't resolve it
+prettierConfig.plugins = [phpPlugin];
 
 import { readFile, writeFile } from "fs/promises";
 import { resolve, basename } from "path";
@@ -56,7 +58,7 @@ const isInTag = (html, offset) => {
  */
 export function tokenizeHTML(htmlContent) {
   let tokenizedHTML = "";
-  const phpCodeBlocks = {};
+  const phpCodeBlocks = new Map();  // Changed to Map for better performance and type safety
   let tokenCount = 0;
 
   /**
@@ -101,7 +103,7 @@ export function tokenizeHTML(htmlContent) {
     tokenizedHTML += htmlContent.slice(lastIndex, match.index);
 
     token = tokenizeCodeBlock(match[0], tokenizedHTML);
-    phpCodeBlocks[token] = match[0];
+    phpCodeBlocks.set(token, match[0]);
     tokenizedHTML += token;
 
     lastIndex = match.index + match[0].length;
@@ -113,7 +115,7 @@ export function tokenizeHTML(htmlContent) {
 
 export function unTokenizeHTML(tokenizedHTML, phpCodeBlocks) {
   let phpContent = tokenizedHTML;
-  for (const token in phpCodeBlocks) {
+  for (const [token, phpBlock] of phpCodeBlocks) {
     /**
      * Create a pattern from token that matches whitespace breaks resulting
      * from Prettier's HTML formatting, usually on very long lines.
@@ -123,7 +125,7 @@ export function unTokenizeHTML(tokenizedHTML, phpCodeBlocks) {
     const regexToken = new RegExp(token.replace("_ />", "_\\s+\\/>"), "g");
     phpContent = phpContent.replace(
       regexToken,
-      phpCodeBlocks[token].replace(/\$/g, "$$$$"),
+      phpBlock.replace(/\$/g, "$$$$"),
     );
   }
   return phpContent;
@@ -160,7 +162,7 @@ async function formatHTMLThenPHP(filepath) {
       ...phpOptions,
       parser: "php",
       embeddedLanguageFormatting: "auto",
-      plugins: [phpPlugin],  // Explicitly pass the plugin
+      // plugins: [phpPlugin], // Explicitly pass the plugin
     });
 
     await writeFile(filepath, phpFormatted, "utf8");
