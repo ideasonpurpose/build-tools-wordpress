@@ -49,6 +49,8 @@ services:
       - 9003
 
     # Link external plugin projects by defining host:container path pairs in .env
+    # An example .env entry looks like this:
+    #  IOP_DEV_PLUGIN_1="../iop-data-model/:/var/www/html/wp-content/plugins/iop-data-model"
     environment:
       IOP_DEV_PLUGIN_1:
       IOP_DEV_PLUGIN_2:
@@ -58,6 +60,8 @@ services:
       IOP_DEV_PLUGIN_6:
       IOP_DEV_PLUGIN_7:
       IOP_DEV_PLUGIN_8:
+      WP_ENVIRONMENT_TYPE:
+      WP_MULTISITE:
 
     # Apache will throw errors for any ulimit value below 8192
     # NOTE THAT THIS MIGHT BE MORE THAN THE SYSTEM OFFERS
