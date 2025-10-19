@@ -89,6 +89,8 @@ export default async (env) => {
 
   const proxy = isProduction ? {} : await devserverProxy(config);
 
+  // console.log({config});
+  // console.log({entry: config.entry});
   /**
    * `usePolling` is a placeholder, try and detect native Windows Docker mounts
    * since they don't support file-watching (no inotify events), if there's
@@ -136,7 +138,7 @@ export default async (env) => {
         {
           test: /\.(scss|css)$/,
           use: [
-            isProduction ? MiniCssExtractPlugin.loader : "style-loader",
+            MiniCssExtractPlugin.loader,
             {
               loader: "css-loader",
               options: {
@@ -419,6 +421,7 @@ export default async (env) => {
     plugins: [
       new MiniCssExtractPlugin({
         filename: isProduction ? "[name]-[contenthash:8].css" : "[name].css",
+        runtime: false,
       }),
 
       new CopyPlugin({
