@@ -136,7 +136,7 @@ export default async (env) => {
         {
           test: /\.(scss|css)$/,
           use: [
-            { loader: MiniCssExtractPlugin.loader },
+            isProduction ? MiniCssExtractPlugin.loader : "style-loader",
             {
               loader: "css-loader",
               options: {
@@ -350,7 +350,6 @@ export default async (env) => {
       },
 
       setupMiddlewares: (middlewares, devServer) => {
-
         /**
          * The `/inform` route is an annoying bit of code. Here's why:
          * Ubiquity Wi-fi hardware frequently spams the shit out of their
@@ -469,6 +468,7 @@ export default async (env) => {
       }),
     ],
     optimization: {
+      runtimeChunk: "single",
       splitChunks: {
         chunks: "all",
       },
