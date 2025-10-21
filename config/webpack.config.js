@@ -122,6 +122,8 @@ export default async (env) => {
   // const usePollingDebug = false; // Set to false to test without polling
   // const pollIntervalDebug = 400;
 
+  // console.log({ entry: config.entry });
+
   return {
     stats,
     module: {
@@ -263,9 +265,11 @@ export default async (env) => {
       host: "0.0.0.0",
       allowedHosts: "all",
       port: "auto",
+
       hot: true, // Enable hot module replacement with fallback to full reload
       client: {
-        logging: "info",
+        logging: "verbose",
+        // logging: "info",
         overlay: {
           errors: true,
           warnings: true,
@@ -388,10 +392,14 @@ export default async (env) => {
         return middlewares;
       },
 
+      liveReload: true,
       watchFiles: {
         paths: [
           // Watch all PHP, HTML, SVG, and JSON files in the theme directory
           path.resolve(config.src, "..") + "/**/*.{php,html,svg,json}",
+          // Watch CSS files in dist to workaround a bug in mini-css-extract-plugin
+          // @link https://github.com/webpack/mini-css-extract-plugin/issues/730
+          path.resolve(config.dist, "..") + "/**/*.css",
         ],
         options: {
           ignored: [
@@ -399,6 +407,7 @@ export default async (env) => {
             "**/vendor/**",
             "**/node_modules/**",
             "**/dist/**",
+            "!**/dist/**/*.css",
           ],
           ignoreInitial: false, // Allow initial file discovery
           ignorePermissionErrors: true,
@@ -454,8 +463,6 @@ export default async (env) => {
         writeManifestFile: true,
         manifestFile: config.manifestFile,
       }),
-
-      new WatchRunReporterPlugin(),
 
       new AfterDoneReporterPlugin({
         echo: env && env.WEBPACK_SERVE,
