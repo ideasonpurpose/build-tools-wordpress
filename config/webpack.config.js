@@ -267,6 +267,12 @@ export default async (env) => {
       port: "auto",
 
       hot: true, // Enable hot module replacement with fallback to full reload
+
+      // hot: "only",
+      static: {
+        watch: false,
+      },
+
       client: {
         logging: "verbose",
         // logging: "info",
@@ -287,6 +293,10 @@ export default async (env) => {
         index: false, // enable root proxying
 
         writeToDisk: (filePath) => {
+          // // // SHORT_CIRCUIT FOR TESTING
+          // // console.log("DEBUG writeToDisk:", { filePath });
+          // return true;
+
           /**
            * Note: If this is an async function, it will write everything to disk
            *
@@ -331,9 +341,9 @@ export default async (env) => {
           }
 
           // SHORT_CIRCUIT FOR TESTING
-          return true;
+          // return true;
 
-          console.log("DEBUG writeToDisk:", { filePath });
+          // console.log("DEBUG writeToDisk:", { filePath });
           return false;
         },
         // stats,
@@ -397,9 +407,6 @@ export default async (env) => {
         paths: [
           // Watch all PHP, HTML, SVG, and JSON files in the theme directory
           path.resolve(config.src, "..") + "/**/*.{php,html,svg,json}",
-          // Watch CSS files in dist to workaround a bug in mini-css-extract-plugin
-          // @link https://github.com/webpack/mini-css-extract-plugin/issues/730
-          path.resolve(config.dist, "..") + "/**/*.css",
         ],
         options: {
           ignored: [
@@ -407,12 +414,10 @@ export default async (env) => {
             "**/vendor/**",
             "**/node_modules/**",
             "**/dist/**",
-            "!**/dist/**/*.css",
           ],
-          ignoreInitial: false, // Allow initial file discovery
+          ignoreInitial: false,
           ignorePermissionErrors: true,
           usePolling: false,
-          // interval: pollIntervalDebug,
         },
       },
 
