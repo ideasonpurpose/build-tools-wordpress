@@ -172,7 +172,10 @@ export default async (env) => {
                 sassOptions: {
                   api: "modern-compiler",
 
-                  loadPaths: [path.resolve(config.src, "sass")],
+                  loadPaths: [
+                    path.resolve(config.src, "sass"),
+                    path.resolve(siteDir, "node_modules"),
+                  ],
                 },
               },
             },
