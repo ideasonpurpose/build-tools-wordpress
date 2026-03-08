@@ -79,6 +79,9 @@ const stats = {
   loggingDebug: ["sass-loader"],
 };
 
+/**
+ * @param {Record<string, any>} env - Environment variables from Webpack CLI
+ */
 export default async (env) => {
   // const siteDir = new URL(import.meta.url).pathname;
   const siteDir = process.cwd();
@@ -88,6 +91,15 @@ export default async (env) => {
   const config = await buildConfig(configFile);
 
   const proxy = isProduction ? {} : await devserverProxy(config);
+
+
+  /**
+   * Simple helper for encoding SVGs as data urls with proper encoding for special characters
+   * @param {Buffer} content
+   * @returns {string} - Encoded SVG data URL
+   */
+  const svgDataUrlHelper = (content) =>
+    `data:image/svg+xml,${encodeURIComponent(content.toString())}`;
 
   // console.log({config});
   // console.log({entry: config.entry});
@@ -101,11 +113,11 @@ export default async (env) => {
    *
    * TODO: Why so much dancing around defaults when this could just inherit from default.config?
    */
-  const usePolling = Boolean(config.usePolling); // likely undefined, coerced to false
-  const pollInterval = Math.max(
-    parseInt(config.pollInterval, 10) || parseInt(config.usePolling, 10) || 400,
-    400,
-  );
+  // const usePolling = Boolean(config.usePolling); // likely undefined, coerced to false
+  // const pollInterval = Math.max(
+  //   parseInt(config.pollInterval, 10) || parseInt(config.usePolling, 10) || 400,
+  //   400,
+  // );
 
   const devtool = config.devtool || false;
 
@@ -359,6 +371,9 @@ export default async (env) => {
       //   return true;
       // },
 
+      /**
+       * @param {Object} devServer - The devServer instance
+       */
       onListening: (devServer) => {
         const port = devServer.server.address().port;
         devServer.compiler.options.devServer.port =
@@ -368,6 +383,10 @@ export default async (env) => {
         console.log("Listening on port:", port);
       },
 
+      /**
+       * @param {Array<Function>} middlewares - Array of middleware functions
+       * @param {Object} devServer - The devServer instance
+       */
       setupMiddlewares: (middlewares, devServer) => {
         /**
          * The `/inform` route is an annoying bit of code. Here's why:
