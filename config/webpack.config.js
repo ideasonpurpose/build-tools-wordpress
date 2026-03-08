@@ -212,17 +212,35 @@ export default async (env) => {
         /**
          * SVGs can be imported as asset urls or React components
          *
+         * In SCSS files, SVGs will be treated as assets and inlined as data urls
+         *     unless they are larger than 4kb
+         *
          * To import an SVG file as a src url, append ?url to the filename:
          *     import svg from './assets/file.svg?url'
          *
-         * To import an SVG file as a React component
-
          * @link https://react-svgr.com/docs/webpack/#use-svgr-and-asset-svg-in-the-same-project
          */
         {
           test: /\.svg$/i,
+          issuer: /\.scss$/,
+          type: "asset",
+          parser: {
+            dataUrlCondition: { maxSize: 4096 },
+          },
+          generator: {
+            dataUrl: svgDataUrlHelper,
+          },
+        },
+        {
+          test: /\.svg$/i,
           type: "asset",
           resourceQuery: /url/, // *.svg?url
+          parser: {
+            dataUrlCondition: { maxSize: 4096 },
+          },
+          generator: {
+            dataUrl: svgDataUrlHelper,
+          },
         },
         {
           test: /\.svg$/i,
