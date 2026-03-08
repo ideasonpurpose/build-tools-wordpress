@@ -29,6 +29,18 @@ Each project may optionally include an **ideasonpurpose.config.js** file in the 
 
 -->
 
+## SVG Processing
+
+Webpack handles SVG files differently based on import context:
+
+- **In SCSS files**: SVGs referenced via `url('file.svg')` are inlined as data URIs if under 4KB, otherwise emitted as separate files in the output directory.
+
+- **In JS/TSX files**:
+  - With `?url` query (e.g., `import svg from 'file.svg?url'`): Treated as assets, inlined as data URIs if under 4KB, else files.
+  - Without `?url`: Converted to React components using `@svgr/webpack` for direct JSX usage.
+
+Data URIs are generated as `data:image/svg+xml,<url-encoded-content>` using more efficient URL-encoding, not base64.
+
 ## Local Development
 
 Because this project makes use of bin scripts, conventional `npm link` workflows won't work correctly. To work on this code in a development project, change the project's package.json to install from a local file path, probably something like this:
