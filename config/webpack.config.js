@@ -186,6 +186,7 @@ export default async (env) => {
 
                   loadPaths: [
                     path.resolve(config.src, "sass"),
+                    path.resolve(config.src, "styles"),
                     path.resolve(siteDir, "node_modules"),
                   ],
                 },
@@ -302,9 +303,10 @@ export default async (env) => {
       hot: true, // Enable hot module replacement with fallback to full reload
 
       // hot: "only",
-      static: {
-        watch: false,
-      },
+      static: [
+        { directory: config.dist, watch: false },
+        { directory: config.src, publicPath: config.publicPath.replace('/dist/', '/src/'), watch: false },
+      ],
 
       client: {
         logging: "verbose",
@@ -486,7 +488,7 @@ export default async (env) => {
               dot: true, // TODO: Dangerous? Why is this ever necessary?!
               ignore: [
                 "**/{.gitignore,.DS_Store,*:Zone.Identifier}",
-                config.src + "/{block,blocks,fonts,js,sass}/**",
+                config.src + "/{block,blocks,fonts,js,sass,styles}/**",
               ],
             },
             noErrorOnMissing: true,

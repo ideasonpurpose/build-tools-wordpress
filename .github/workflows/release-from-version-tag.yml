@@ -6,9 +6,9 @@ on:
 
 jobs:
   build:
-    # https://github.com/actions/runner-images
     name: Build Release
     # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+    # https://github.com/actions/runner-images
     runs-on: ubuntu-24.04
 
     steps:
