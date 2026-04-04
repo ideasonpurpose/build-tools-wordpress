@@ -22,7 +22,8 @@
     "iop-build-port-reporter": "./bin/port-reporter.js",
     "iop-build-zip-archive": "./bin/zip.js",
     "iop-project-init": "./bin/project-init.js",
-    "iop-html-php-prettier": "./bin/format-php-prettier.js"
+    "iop-html-php-prettier": "./bin/format-php-prettier.js",
+    "iop-format-wp-block-pattern": "./bin/format-wp-block-pattern.js"
   },
   "directories": {
     "lib": "lib"
