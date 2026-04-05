@@ -15,10 +15,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       # https://github.com/marketplace/actions/checkout
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # https://github.com/actions/setup-node
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v46
         with:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
