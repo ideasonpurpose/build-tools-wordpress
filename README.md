@@ -41,6 +41,20 @@ Webpack handles SVG files differently based on import context:
 
 Data URIs are generated as `data:image/svg+xml,<url-encoded-content>` using more efficient URL-encoding, not base64.
 
+## Experimental formatting helpers
+
+This package includes two experimental formatting scripts:
+
+### `iop-html-php-prettier`
+
+This uses [Prettier](https://prettier.io) to double-format mixed HTML and PHP files (like WordPress templates). PHP blocks are tokenized so Prettier can safely format the file as HTML, then PHP blocks are restored and the file is formatted again as PHP using [@prettier/plugin-php](https://github.com/prettier/plugin-php).
+**Usage:** `npx iop-html-php-prettier path/to/file.php`
+
+### `iop-format-wp-block-pattern`
+
+A specialized formatter for WordPress PHP block patterns. This makes block markup easier to read, expands JSON settings, and adjusts whitespace to work around Block Editor quirks.
+**Usage:** `npx iop-format-wp-block-pattern path/to/pattern.php`
+
 ## Local Development
 
 Because this project makes use of bin scripts, conventional `npm link` workflows won't work correctly. To work on this code in a development project, change the project's package.json to install from a local file path, probably something like this:
