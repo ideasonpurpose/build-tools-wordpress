@@ -8,6 +8,7 @@ import {
   formatWpCommentJson,
   formatAllWpComments,
   normalizeCommentTagSpacing,
+  trimInsideListElements,
 } from "../bin/format-wp-block-pattern.js";
 
 describe("Format JSON in WP Block comments", () => {
@@ -94,6 +95,17 @@ describe("Normalize whitespace", () => {
     ).toString();
 
     const actual = normalizeCommentTagSpacing(input);
+    expect(actual).toMatch(/<\/div>\n<!-- \/wp:group -->/);
+  });
+
+  test("List handling", async () => {
+    const input = (
+      await readFile(
+        "./test/fixtures/format-wp-block-pattern/nested-list.php",
+      )
+    ).toString();
+
+    const actual = trimInsideListElements(input);
     expect(actual).toMatch(/<\/div>\n<!-- \/wp:group -->/);
   });
 });

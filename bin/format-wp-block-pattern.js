@@ -84,6 +84,7 @@ export function normalizeCommentTagSpacing(content) {
     "wp:heading",
     "wp:image",
     "wp:list",
+    "wp:list-item",
     "wp:media-text",
     "wp:paragraph",
     "wp:pattern",
@@ -112,6 +113,49 @@ export function normalizeCommentTagSpacing(content) {
 }
 
 /**
+ * Remove extra blank lines (more than 2) and trim leading/trailing whitespace
+ * @param {string} content
+ * @returns {string}
+ */
+export function normalizeNewlines(content) {
+  return (
+    content
+      .replace(/^[ \t]+$/gm, "")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim() + "\n"
+  );
+}
+
+/**
+ * Special handling of space inside <li> elements
+ *   @param {string} content
+ *   @returns {string}
+ */
+export function trimInsideListElements(content) {
+  return content
+    .replace(/\s*<!-- wp:list /g, "<!-- wp:list ")
+    .replace(/>\s*<!-- wp:list /g, ">\n\n<!-- wp:list ")
+    .replace(/>\s*<!-- wp:list-item /g, ">\n\n<!-- wp:list-item ")
+    .replace(/<!-- \/wp:list-item -->\s*</g, "<!-- \/wp:list-item -->\n\n<")
+    .replace(/<li>\s*/g, "<li>")
+    .replace(/\s*<\/li>/g, "</li>");
+}
+
+/**
+ * @param {string} content
+ * @returns {Promise<string>}
+ */
+export function formatWithPrettier(content) {
+  return prettier.format(content, {
+    parser: "html",
+    tabWidth: 2,
+    useTabs: false,
+    printWidth: 80,
+    htmlWhitespaceSensitivity: "css",
+  });
+}
+
+/**
  * @param {String} filepath
  */
 async function formatWPBlockPattern(filepath) {
@@ -119,20 +163,20 @@ async function formatWPBlockPattern(filepath) {
     const startTime = process.hrtime.bigint();
     const rawFile = await readFile(filepath, "utf8");
 
-    const formattedHTML = await prettier.format(rawFile, {
-      parser: "html",
-      tabWidth: 0,
-      useTabs: false,
-      printWidth: 80,
-      htmlWhitespaceSensitivity: "css",
-    });
+    const formatters = [
+      formatWithPrettier,
+      normalizeCommentTagSpacing,
+      formatAllWpComments,
+      trimInsideListElements,
+      normalizeNewlines,
+    ];
 
-    const cleanedWhiteSpace = normalizeCommentTagSpacing(formattedHTML);
-    const formattedCommentsJSON = formatAllWpComments(cleanedWhiteSpace);
-    const finalFormatted =
-      formattedCommentsJSON.replace(/\n{3,}/g, "\n\n").trim() + "\n";
+    const outputHtml = await formatters.reduce(
+      async (acc, fn) => fn(await acc),
+      Promise.resolve(rawFile),
+    );
 
-    await writeFile(filepath, finalFormatted, "utf8");
+    await writeFile(filepath, outputHtml, "utf8");
     const endTime = process.hrtime.bigint();
     const duration = Number(endTime - startTime);
 
