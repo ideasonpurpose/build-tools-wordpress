@@ -143,6 +143,8 @@ export function trimInsideListElements(content) {
 
 /**
  * Special whitespace handling inside <h1..h6> elements
+ *   @param {string} content
+ *   @returns {string}
  */
 export function trimInsideHeadings(content) {
   return content
