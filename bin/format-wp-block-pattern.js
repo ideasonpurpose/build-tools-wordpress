@@ -142,6 +142,15 @@ export function trimInsideListElements(content) {
 }
 
 /**
+ * Special whitespace handling inside <h1..h6> elements
+ */
+export function trimInsideHeadings(content) {
+  return content
+    .replace(/(<h[1-6][^>]*>)\s*/g, "$1")
+    .replace(/\s*(<\/h[1-6]>)/g, "$1");
+}
+
+/**
  * @param {string} content
  * @returns {Promise<string>}
  */
@@ -168,6 +177,7 @@ async function formatWPBlockPattern(filepath) {
       normalizeCommentTagSpacing,
       formatAllWpComments,
       trimInsideListElements,
+      trimInsideHeadings,
       normalizeNewlines,
     ];
 
