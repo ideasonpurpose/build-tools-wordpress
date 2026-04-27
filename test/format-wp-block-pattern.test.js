@@ -37,16 +37,20 @@ describe("Format JSON in WP Block comments", () => {
   });
 
   test("Return short JSON for two-key wp:* comments", async () => {
-    const input = '<!-- wp:group {  "align": "full", "className": "group-name"} -->';
-    const expected = '<!-- wp:group {"align":"full","className":"group-name"} -->';
+    const input =
+      '<!-- wp:group {  "align": "full", "className": "group-name"} -->';
+    const expected =
+      '<!-- wp:group {"align":"full","className":"group-name"} -->';
 
     const actual = formatWpCommentJson(input);
     expect(actual).toBe(expected);
   });
 
   test("Prettyprint three-key wp:* comments", async () => {
-    const input = '<!-- wp:group {  "align": "full","isLink":true, "className": "group-name"} -->';
-    const expected = '<!-- wp:group {\n  "align": "full",\n  "isLink": true,\n  "className": "group-name"\n} -->';
+    const input =
+      '<!-- wp:group {  "align": "full","isLink":true, "className": "group-name"} -->';
+    const expected =
+      '<!-- wp:group {\n  "align": "full",\n  "isLink": true,\n  "className": "group-name"\n} -->';
 
     const actual = formatWpCommentJson(input);
     expect(actual).toBe(expected);
@@ -85,7 +89,6 @@ describe("Format WP Block Patterns", () => {
   });
 });
 
-
 describe("Normalize whitespace", () => {
   test("Fix Comment tag spacing", async () => {
     const input = (
@@ -100,15 +103,18 @@ describe("Normalize whitespace", () => {
 
   test("List handling", async () => {
     const input = (
-      await readFile(
-        "./test/fixtures/format-wp-block-pattern/nested-list.php",
-      )
+      await readFile("./test/fixtures/format-wp-block-pattern/nested-list.php")
+    ).toString();
+
+        const expected = (
+      await readFile("./test/fixtures/format-wp-block-pattern/nested-list__formatted.php")
     ).toString();
 
     const actual = trimInsideListElements(input);
-    expect(actual).toMatch(/<\/div>\n<!-- \/wp:group -->/);
+        expect(actual).toMatch(/<li>UL/);
+
+    expect(actual).toBe(expected);
   });
 });
-
 
 // {"align":"full","className":"group-name"}
