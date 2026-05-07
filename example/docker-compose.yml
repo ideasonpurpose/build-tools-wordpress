@@ -1,0 +1,7 @@
+include:
+  - path: ./node_modules/@ideasonpurpose/build-tools-wordpress/tooling/docker-compose.yml
+    # Set project_directory to force volumes to use this file as the relative root for included docker-compose files
+    project_directory: .
+
+# Uncomment this line to use a local dev build of the WordPress Docker image.
+# services: { wordpress: { image: "ideasonpurpose/wordpress:dev" } }
