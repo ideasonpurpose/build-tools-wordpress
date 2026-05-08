@@ -1,0 +1,42 @@
+{
+  "name": "ideasonpurpose/iop-theme",
+  "description": "Block-based hybrid theme for the Stone Rabbit NYC website.",
+  "authors": [
+    {
+      "name": "Ideas On Purpose",
+      "homepage": "https://www.ideasonpurpose.com"
+    }
+  ],
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true,
+    "vendor-dir": "wp-content/themes/iop-theme/vendor",
+    "platform": {
+      "php": "8.4",
+      "ext-intl": "0"
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "IdeasOnPurpose\\": [
+        "wp-content/themes/iop-theme/lib"
+      ]
+    }
+  },
+  "require": {
+    "ideasonpurpose/wp-admin-separators": "1.0.8",
+    "ideasonpurpose/wp-google-analytics": "^1.1.0",
+    "ideasonpurpose/wp-svg-lib": "^3.1.0",
+    "ideasonpurpose/wp-theme-i18n": "dev-main",
+    "ideasonpurpose/wp-theme-init": "^2.18.2"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/ideasonpurpose/wp-theme-i18n"
+    }
+  ],
+  "require-dev": {
+    "php-stubs/acf-pro-stubs": "^6.5"
+  }
+}

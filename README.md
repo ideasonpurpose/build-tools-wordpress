@@ -41,6 +41,10 @@ Webpack handles SVG files differently based on import context:
 
 Data URIs are generated as `data:image/svg+xml,<url-encoded-content>` using more efficient URL-encoding, not base64.
 
+### SVG Optimization
+
+SVGO is included along with our preferred [svgo.config.mjs][]. Run this with `npx svgo <file-to-optimize.svg>`
+
 ## Experimental formatting helpers
 
 This package includes two experimental formatting scripts:
@@ -94,7 +98,7 @@ A GitHub action will auto-publish version-tagged releases to npm. In order to pu
 
 #### Brought to you by IOP
 
-| <a href="https://www.ideasonpurpose.com"><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/iop-logo-white-on-black-88px.png" height="44" align="top" alt="IOP Logo"></a>    | This project is actively developed and used in production at <a href="https://www.ideasonpurpose.com">Ideas On Purpose</a>. | 
-|-------|------|
+| <a href="https://www.ideasonpurpose.com"><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/iop-logo-white-on-black-88px.png" height="44" align="top" alt="IOP Logo"></a> | This project is actively developed and used in production at <a href="https://www.ideasonpurpose.com">Ideas On Purpose</a>. |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 
 <!-- END IOP CREDIT BLURB -->
