@@ -55,7 +55,7 @@
     "version": "version-everything && git add -u",
     "postversion": "npm run build",
     "webgrind": "docker compose run --rm --service-ports webgrind",
-    "wp-cli": "docker compose exec -u wp wordpress wp",
+    "wp-cli": "docker compose exec -u wp wordpress",
     "zip": "iop-build-zip-archive"
   },
   "prettier": "@ideasonpurpose/prettier-config",
