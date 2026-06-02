@@ -2,7 +2,7 @@ services:
   # Primary database for the local WordPress development environment.
   # Image from: https://hub.docker.com/_/mysql
   db:
-    image: &db_img mysql:8.4
+    image: &db_img mysql:9.7
     restart: always
     volumes:
       - db_data:/var/lib/mysql
@@ -31,13 +31,13 @@ services:
         max-file: "3"
 
   # Ideas On Purpose's local WordPress development environment.
-  # Update image version with `docker run ideasonpurpose/wordpress init`
+  # Update image version with `docker run ideasonpurpose/wordpress init`   
   # Project info: https://github.com/ideasonpurpose/docker-wordpress-dev
   wordpress:
     depends_on:
       - db
     # image: &wp_img ideasonpurpose/wordpress:dev
-    image: &wp_img ideasonpurpose/wordpress:6.9.4
+    image: &wp_img ideasonpurpose/wordpress:7.0
     restart: always
     volumes:
       - wp_data:/var/www/html
@@ -82,7 +82,7 @@ services:
   # Utility service for running composer commands
   # Image from: https://hub.docker.com/_/composer
   composer:
-    image: composer:2.9
+    image: composer:2.10
     profiles: ["utility"]
     user: "${UID:-1000}:${GID:-1000}"
     environment:
