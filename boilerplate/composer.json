@@ -26,9 +26,9 @@
   "require": {
     "ideasonpurpose/wp-admin-separators": "1.0.8",
     "ideasonpurpose/wp-google-analytics": "^1.1.0",
-    "ideasonpurpose/wp-svg-lib": "^3.1.0",
+    "ideasonpurpose/wp-svg-lib": "^3.2.0",
     "ideasonpurpose/wp-theme-i18n": "dev-main",
-    "ideasonpurpose/wp-theme-init": "^2.18.2"
+    "ideasonpurpose/wp-theme-init": "^2.20.5"
   },
   "repositories": [
     {
