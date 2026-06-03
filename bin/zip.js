@@ -11,7 +11,7 @@ import { clearLine, cursorTo } from "node:readline";
 import url from "url";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import archiver from "archiver";
+import { ZipArchive } from "archiver";
 import chalk from "chalk";
 import { cosmiconfig, cosmiconfigSync } from "cosmiconfig";
 import { filesize } from "filesize";
@@ -69,7 +69,7 @@ const output = createWriteStream(zipFile);
 
 output.on("finish", finishReporter);
 
-const archive = archiver("zip", { zlib: { level: 9 } });
+const archive = new ZipArchive({ zlib: { level: 9 } });
 archive.pipe(output);
 
 console.log(chalk.bold("Bundling Project for Deployment"));
