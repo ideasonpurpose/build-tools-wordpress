@@ -173,7 +173,7 @@ services:
     command: |
       bash -c  'for i in {1..10}
                 do echo -e "⏳  \033[33mWaiting for DB server...\033[0m" &&
-                  mysql --ssl-mode=DISABLED -s -h db -e "exit" && break || sleep 3
+                  mysql --ssl-mode=DISABLED -s -h db -e "SELECT 1" && break || sleep 3
                 done &&
                 sleep 2 &&
                 echo -e "✔️   \033[32mConnected to DB\033[0m" &&
@@ -197,7 +197,7 @@ services:
     command: |
       bash -c  'for i in {1..10}
                 do echo -e "⏳  \033[33mWaiting for DB server...\033[0m" &&
-                  mysql --ssl-mode=DISABLED -s -h db -e "exit" && break || sleep 3
+                  mysql --ssl-mode=DISABLED -s -h db -e "SELECT 1" && break || sleep 3
                 done &&
                 sleep 2 &&
                 echo -e "✔️   \033[32mConnected to DB\033[0m" &&
@@ -205,7 +205,7 @@ services:
                 mysqladmin --ssl-mode=DISABLED -hdb -v -f create $${MYSQL_DATABASE} &&
                 echo Database \"$${MYSQL_DATABASE}\" created &&
                 echo Reloading database from dumpfile &&
-                mysql --ssl-mode=DISABLED -hdb $${MYSQL_DATABASE} < $$(ls /usr/src/dumpfiles/*.sql | tail -n1)'
+                mysql --ssl-mode=DISABLED -hdb $${MYSQL_DATABASE} < $$(ls -t /usr/src/dumpfiles/*.sql | head -n1)'
 
   # Activates the theme directly in the database
   theme-activate:
@@ -220,7 +220,7 @@ services:
     command: |
       bash -c  'for i in {1..10}
                 do echo -e "⏳  \033[33mWaiting for DB server...\033[0m" &&
-                  mysql --ssl-mode=DISABLED -s -h db -e "exit" && break || sleep 3
+                  mysql --ssl-mode=DISABLED -s -h db -e "SELECT 1" && break || sleep 3
                 done &&
                 sleep 2 &&
                 echo -e "✔️   \033[32mConnected to DB\033[0m" &&
