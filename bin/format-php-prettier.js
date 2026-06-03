@@ -141,7 +141,7 @@ export function unTokenizeHTML(tokenizedHTML, phpCodeBlocks) {
  *
  * @param {string} filepath - The path to the file to format (must be a valid file path).
  */
-async function formatHTMLThenPHP(filepath) {
+export async function formatHTMLThenPHP(filepath) {
   try {
     const startTime = process.hrtime.bigint();
     const rawFile = await readFile(filepath, "utf8");
@@ -175,9 +175,11 @@ async function formatHTMLThenPHP(filepath) {
   }
 }
 
-if (process.argv[2]) {
-  const fullPath = resolve(process.argv[2]);
-  formatHTMLThenPHP(fullPath);
-} else {
-  console.error("Error: A filepath is required.");
+export async function main(filepath = process.argv[2]) {
+  if (!filepath) {
+    console.error("Error: A filepath is required.");
+    return;
+  }
+  await formatHTMLThenPHP(resolve(filepath));
 }
+if (import.meta.url === `file://${process.argv[1]}`) main();

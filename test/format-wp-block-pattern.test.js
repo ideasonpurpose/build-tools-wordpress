@@ -1,6 +1,13 @@
 //@ts-check
 
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
+import prettier from "prettier";
+
+vi.mock("prettier", () => ({
+  default: {
+    format: vi.fn().mockResolvedValue("<formatted/>"),
+  },
+}));
 
 import { readFile } from "node:fs/promises";
 
@@ -9,6 +16,11 @@ import {
   formatAllWpComments,
   normalizeCommentTagSpacing,
   trimInsideListElements,
+  normalizeNewlines,
+  trimInsideHeadings,
+  formatWithPrettier,
+  formatWPBlockPattern,
+  main,
 } from "../bin/format-wp-block-pattern.js";
 
 describe("Format JSON in WP Block comments", () => {
@@ -106,15 +118,62 @@ describe("Normalize whitespace", () => {
       await readFile("./test/fixtures/format-wp-block-pattern/nested-list.php")
     ).toString();
 
-        const expected = (
-      await readFile("./test/fixtures/format-wp-block-pattern/nested-list__formatted.php")
+    const expected = (
+      await readFile(
+        "./test/fixtures/format-wp-block-pattern/nested-list__formatted.php",
+      )
     ).toString();
 
     const actual = trimInsideListElements(input);
-        expect(actual).toMatch(/<li>UL/);
+    expect(actual).toMatch(/<li>UL/);
 
     expect(actual).toBe(expected);
   });
+
+  test("Whitespace handling in paragraphs", async () => {
+    const input = (
+      await readFile(
+        "./test/fixtures/format-wp-block-pattern/paragraph-whitespace.php",
+      )
+    ).toString();
+
+    const expected = (
+      await readFile(
+        "./test/fixtures/format-wp-block-pattern/paragraph-whitespace__formatted.php",
+      )
+    ).toString();
+
+    const actual = normalizeCommentTagSpacing(input);
+    expect(actual).toBe(expected);
+  });
+
+  test("normalizeNewlines for coverage", async () => {
+    const input = "Line 1\nLine 2\n \n \n\n\n\nLine 3\nLine 4";
+    const expected = "Line 1\nLine 2\n\nLine 3\nLine 4\n";
+
+    const actual = normalizeNewlines(input);
+    expect(actual).toBe(expected);
+  });
+
+  test("trimInsideHeadings for coverage", async () => {
+    const input = "<h2>   Heading with extra spaces   </h2>";
+    const expected = "<h2>Heading with extra spaces</h2>";
+
+    const actual = trimInsideHeadings(input);
+    expect(actual).toBe(expected);
+  });
+
+  test("formatWithPrettier for coverage", async () => {
+    const input = "<div>foo</div>";
+    await formatWithPrettier(input);
+    expect(prettier.format).toHaveBeenCalled();
+  });
+
+  test("main requires filepath", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    await main();
+    expect(spy).toHaveBeenCalled();
+    spy.mockRestore();
+  });
 });
 
-// {"align":"full","className":"group-name"}

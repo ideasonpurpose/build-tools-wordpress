@@ -1,16 +1,11 @@
 //@ts-check
 
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-
-import fs from "fs";
-import dns from "dns";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 
 import { EventEmitter } from "events";
 
 import { devserverProxy } from "../lib/devserver-proxy.js";
 import { findLocalPort } from "../lib/find-local-docker-port.js";
-
-const expected = "11.22.33.44";
 
 const expectedPort = 56789;
 const expectedHostName = "stella.dog";
@@ -18,6 +13,7 @@ const expectedTarget = `http://${expectedHostName}:${expectedPort}`;
 
 vi.mock("../lib/find-local-docker-port.js");
 
+/** @type {Promise<{port:number,hostname:string}>} */
 let localPort;
 
 beforeEach(() => {
@@ -33,80 +29,6 @@ beforeEach(() => {
 afterEach(() => {
   vi.restoreAllMocks();
 });
-// beforeEach(() => {
-//   jest.spyOn(dns, "promises", "get").mockImplementation(() => {
-//     return { resolve: async () => [expected] };
-//   });
-
-//   console.log = jest.fn();
-// });
-
-// afterEach(() => {
-//   jest.clearAllMocks();
-//   jest.resetAllMocks();
-//   // mockResolve.mockResolvedValue(["11.22.33.44"]);
-// });
-
-// disabled because we're now mocking the library
-// test.skip("dns works normally", async () => {
-//   const actual = await dns.promises.resolve("apple.com");
-//   expect(actual[0]).toMatch(/^17\.253/);
-// });
-
-// test("mock dns.promises.resolve", async () => {
-//   const actual = await dns.promises.resolve("hello");
-//   expect(actual).toBe(expected);
-// });
-
-// test("resolve from file", async () => {
-//   const actual = await resolveFromFile("wordpress");
-//   expect(actual).toBe(expected);
-// });
-
-// test("Send legacy token where there's no wordpress service", async () => {
-//   jest.spyOn(dns, "promises", "get").mockImplementation(() => {
-//     // console.log("ONLY ONCE");
-//     return { resolve: () => new Promise((resolve, reject) => reject()) };
-//   });
-
-//   let proxy =
-//     "http://devserver-proxy-token--d939bef2a41c4aa154ddb8db903ce19fff338b61";
-
-//   const logSpy = jest.spyOn(console, "log");
-//   const actual = await devserverProxy({ proxy });
-
-//   expect(actual).toStrictEqual({});
-//   // expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("ONCE"));
-//   expect(logSpy).toHaveBeenCalledWith(
-//     expect.any(String),
-//     expect.stringContaining("devserver-proxy-token"),
-//     expect.any(String)
-//   );
-// });
-
-// test("prefix http onto string", async () => {
-//   jest.spyOn(dns, "promises", "get").mockImplementation(() => {
-//     return {
-//       resolve: () => new Promise((resolve, reject) => resolve(["fake-url"])),
-//     };
-//   });
-
-//   let proxy = "placeholder string";
-//   const actual = await devserverProxy({ proxy });
-//   expect(actual).toHaveProperty("proxy.**.target", "http://fake-url");
-// });
-
-// test("fail to prefix http onto string", async () => {
-//   jest.spyOn(dns, "promises", "get").mockImplementation(() => {
-//     return {
-//       resolve: () => new Promise((resolve, reject) => reject()),
-//     };
-//   });
-
-//   let proxy = "placeholder string";
-//   const actual = await devserverProxy({ proxy });
-//   expect(actual).toStrictEqual({});
-// });
 
 test("Test proxy settings", async () => {
   let proxy = true;
@@ -134,11 +56,25 @@ test("proxy is a plain string", async () => {
   expect(findLocalPort).toHaveBeenCalledWith(proxy);
 });
 
+test("plain string proxy with no local port", async () => {
+  vi.mocked(findLocalPort).mockReturnValue(Promise.resolve(null));
+  const result = await devserverProxy({ proxy: "sandwich" });
+  expect(result.proxy).toHaveLength(1);
+  expect(result.proxy[0].target).toBeUndefined();
+});
+
 test("Proxy boolean true", async () => {
   vi.mocked(findLocalPort).mockReturnValue(localPort);
   const proxy = true;
   const actual = (await devserverProxy({ proxy })).proxy[0];
   expect(actual).toHaveProperty("target", expectedTarget);
+});
+
+test("Proxy boolean true with no local port", async () => {
+  vi.mocked(findLocalPort).mockReturnValue(Promise.resolve(null));
+  const result = await devserverProxy({ proxy: true });
+  expect(result.proxy).toHaveLength(1);
+  expect(result.proxy[0].target).toBeUndefined();
 });
 
 test("Proxy boolean false", async () => {
@@ -216,7 +152,6 @@ test("onProxyRes Handler", async () => {
   );
 });
 
-
 test("onProxyRes Handler passthrough", async () => {
   const config = { proxy: "http://localhost:3000" };
   const result = await devserverProxy(config);
@@ -224,9 +159,9 @@ test("onProxyRes Handler passthrough", async () => {
 
   const mockProxyRes = new EventEmitter();
   mockProxyRes.statusCode = 200;
-  mockProxyRes.statusMessage = "OK";
   mockProxyRes.headers = {
     "content-type": "nope/nope",
+    "x-num": 42,
   };
   const mockReq = {
     headers: { host: "example.com" },
@@ -255,124 +190,19 @@ test("onProxyRes Handler passthrough", async () => {
   );
 });
 
+test("onProxyReqWs handler", async () => {
+  const result = await devserverProxy({ proxy: "http://example.com" });
+  const onProxyReqWs = result.proxy[0].onProxyReqWs;
 
+  const socket = new EventEmitter();
+  const errSpy = vi.spyOn(console, "error");
 
-// test("test proxy's onProxyRes handler", async () => {
-//   let proxy = "https://example.com";
-//   const logSpy = jest.spyOn(console, "log");
-//   const actual = await devserverProxy({ proxy });
+  onProxyReqWs(null, null, socket, null, null);
+  socket.emit("error", { code: "EPIPE" });
+  expect(errSpy).not.toHaveBeenCalled();
 
-//   const route = actual.proxy["**"];
-//   const mockProxyRes = fs.createReadStream(new URL(import.meta.url));
-
-//   mockProxyRes.headers = {
-//     headerKey: "value",
-//     host: "example.com",
-//     "content-type": "text/html; charset=utf-8",
-//   };
-//   mockProxyRes.statusCode = "statusCode";
-//   mockProxyRes.statusMessage = "statusMessage";
-
-//   const events = {};
-//   jest.spyOn(mockProxyRes, "on").mockImplementation((event, handler) => {
-//     events[event] = handler;
-//     return mockProxyRes;
-//   });
-
-//   const setHeader = jest.fn();
-//   const end = jest.fn();
-
-//   const res = { setHeader, end };
-//   const req = {
-//     headers: { host: "req.headers.host" },
-//     path: "path",
-//   };
-
-//   route.onProxyRes(mockProxyRes, req, res);
-//   events.data(Buffer.from("A string with 28 characters."));
-//   events.end();
-
-//   expect(res.statusCode).toBe(mockProxyRes.statusCode);
-//   expect(res.statusMessage).toBe(mockProxyRes.statusMessage);
-//   expect(req.headers.host).toBe("req.headers.host");
-//   expect(setHeader).toHaveBeenLastCalledWith("Content-Length", 28);
-// });
-
-// test("test proxy's onProxyRes handler onEnd passthrough", async () => {
-//   let proxy = "https://example.com";
-//   // const logSpy = jest.spyOn(console, "log");
-//   const actual = await devserverProxy({ proxy });
-
-//   const route = actual.proxy["**"];
-//   const mockProxyRes = fs.createReadStream(new URL(import.meta.url));
-
-//   console.log("hello");
-//   mockProxyRes.headers = {
-//     headerKey: "value",
-//     host: "example.com",
-//     "Content-Length": 123,
-//   };
-
-//   const events = {};
-//   jest.spyOn(mockProxyRes, "on").mockImplementation((event, handler) => {
-//     events[event] = handler;
-//     return mockProxyRes;
-//   });
-
-//   const setHeader = jest.fn();
-//   const end = jest.fn();
-
-//   const res = { setHeader, end };
-//   const req = {
-//     headers: { host: "req.headers.host" },
-//     path: "/wp-admin/fake.css",
-//   };
-
-//   route.onProxyRes(mockProxyRes, req, res);
-//   events.end();
-
-//   expect(end).toHaveBeenCalled();
-// });
-
-// test("proxy should rewrite http:// and http:\\/\\/", async () => {
-//   let proxy = "wordpress";
-
-//   const logSpy = jest.spyOn(console, "log");
-//   const actual = await devserverProxy({ proxy });
-//   const route = actual.proxy["**"];
-//   const mockProxyRes = fs.createReadStream(new URL(import.meta.url));
-
-//   mockProxyRes.headers = {
-//     headerKey: "value",
-//     host: "example.com",
-//     "content-type": "text/html; charset=utf-8",
-//   };
-
-//   const events = {};
-//   jest.spyOn(mockProxyRes, "on").mockImplementation((event, handler) => {
-//     events[event] = handler;
-//     return mockProxyRes;
-//   });
-
-//   const setHeader = jest.fn();
-//   const end = jest.fn();
-
-//   const res = { setHeader, end };
-//   const req = {
-//     headers: { host: "req.headers.host" },
-//     path: "path",
-//   };
-
-//   route.onProxyRes(mockProxyRes, req, res);
-//   events.data(Buffer.from("http://11.22.33.44\n"));
-//   events.data(Buffer.from("http:\\/\\/11.22.33.44\n"));
-//   events.end();
-
-//   expect(end.mock.calls[0][0].toString("utf8")).toMatch(
-//     /http:\/\/req.headers.host/
-//   );
-
-//   expect(end.mock.calls[0][0].toString("utf8")).toMatch(
-//     /http:\\\/\\\/req.headers.host/
-//   );
-// });
+  socket.emit("error", { code: "OTHER" });
+  expect(errSpy).toHaveBeenCalledWith("WebSocket proxy error:", {
+    code: "OTHER",
+  });
+});

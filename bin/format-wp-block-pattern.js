@@ -108,6 +108,16 @@ export function normalizeCommentTagSpacing(content) {
       /** @param {string} match @param {string} p1 */ (match, p1) =>
         `>\n${p1}\n`,
     );
+
+    if (block === "wp:paragraph") {
+      newContent = newContent
+        .replace(/\n\s*<p>\s*/g, "\n<p>")
+        .replace(/\s*<\/p>/g, "</p>")
+        .replace(/<p>[\s\S]*?<\/p>/g, (match) =>
+          match.replace(/\s+/g, " ").trim(),
+        );
+      newContent = newContent.replace(/\n{3,}/g, "\n\n").replace(/\s+$/, "\n");
+    }
   });
   return newContent;
 }
@@ -169,38 +179,36 @@ export function formatWithPrettier(content) {
 /**
  * @param {String} filepath
  */
-async function formatWPBlockPattern(filepath) {
-  try {
-    const startTime = process.hrtime.bigint();
-    const rawFile = await readFile(filepath, "utf8");
+export async function formatWPBlockPattern(filepath) {
+  const startTime = process.hrtime.bigint();
+  const rawFile = await readFile(filepath, "utf8");
 
-    const formatters = [
-      formatWithPrettier,
-      normalizeCommentTagSpacing,
-      formatAllWpComments,
-      trimInsideListElements,
-      trimInsideHeadings,
-      normalizeNewlines,
-    ];
+  const formatters = [
+    formatWithPrettier,
+    normalizeCommentTagSpacing,
+    formatAllWpComments,
+    trimInsideListElements,
+    trimInsideHeadings,
+    normalizeNewlines,
+  ];
 
-    const outputHtml = await formatters.reduce(
-      async (acc, fn) => fn(await acc),
-      Promise.resolve(rawFile),
-    );
+  const outputHtml = await formatters.reduce(
+    async (acc, fn) => fn(await acc),
+    Promise.resolve(rawFile),
+  );
 
-    await writeFile(filepath, outputHtml, "utf8");
-    const endTime = process.hrtime.bigint();
-    const duration = Number(endTime - startTime);
+  await writeFile(filepath, outputHtml, "utf8");
+  const endTime = process.hrtime.bigint();
+  const duration = Number(endTime - startTime);
 
-    console.log(`${basename(filepath)} ${(duration / 1e6).toFixed(2)}ms`);
-  } catch (error) {
-    console.error("Error:", error);
+  console.log(`${basename(filepath)} ${(duration / 1e6).toFixed(2)}ms`);
+}
+
+export async function main(filepath = process.argv[2]) {
+  if (!filepath) {
+    console.error("Error: A filepath is required.");
+    return;
   }
+  await formatWPBlockPattern(resolve(filepath));
 }
-
-if (process.argv[2]) {
-  const fullPath = resolve(process.argv[2]);
-  formatWPBlockPattern(fullPath);
-} else {
-  console.error("Error: A filepath is required.");
-}
+if (import.meta.url === `file://${process.argv[1]}`) main();
