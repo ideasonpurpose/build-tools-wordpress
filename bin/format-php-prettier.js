@@ -58,7 +58,7 @@ const isInTag = (html, offset) => {
  */
 export function tokenizeHTML(htmlContent) {
   let tokenizedHTML = "";
-  const phpCodeBlocks = new Map();  // Changed to Map for better performance and type safety
+  const phpCodeBlocks = new Map(); // Changed to Map for better performance and type safety
   let tokenCount = 0;
 
   /**
@@ -182,4 +182,5 @@ export async function main(filepath = process.argv[2]) {
   }
   await formatHTMLThenPHP(resolve(filepath));
 }
-if (import.meta.url === `file://${process.argv[1]}`) main();
+
+if (process.argv[2]) main();

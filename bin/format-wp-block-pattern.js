@@ -211,4 +211,4 @@ export async function main(filepath = process.argv[2]) {
   }
   await formatWPBlockPattern(resolve(filepath));
 }
-if (import.meta.url === `file://${process.argv[1]}`) main();
+if (process.argv[2]) main();
