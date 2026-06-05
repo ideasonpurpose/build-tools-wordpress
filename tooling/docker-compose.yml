@@ -63,6 +63,7 @@ services:
       - 9003
 
     # Link external plugin projects by defining host:container path pairs in .env
+    # Set a custom environment by assigning a value to WP_ENVIRONMENT_TYPE
     environment:
       IOP_DEV_PLUGIN_1:
       IOP_DEV_PLUGIN_2:
@@ -72,6 +73,7 @@ services:
       IOP_DEV_PLUGIN_6:
       IOP_DEV_PLUGIN_7:
       IOP_DEV_PLUGIN_8:
+      WP_ENVIRONMENT_TYPE: 
 
     # Required for iptables port-mapping to work inside the Docker image
     # This is used to fix a PHP/WordPress issue where internal requests
