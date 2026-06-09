@@ -4,7 +4,6 @@
  *
  * This config allows for immediate optimization of SVGs in the editor
  *
- *
  * @links
  * - SVGO: https://github.com/svg/svgo
  * - SVGO preset-default docs: https://svgo.dev/docs/preset-default
@@ -14,19 +13,62 @@
 
 export default {
   js2svg: {
-    indent: 4, // number
-    pretty: true, // boolean
+    indent: 4,
+    pretty: true,
   },
 
   plugins: [
+    {
+      name: "addDimensionsFromViewBox",
+      type: "visitor",
+      fn: () => {
+        return {
+          element: {
+            enter: (node) => {
+              if (node.name !== "svg") return;
+              if (!node.attributes.viewBox) return;
+              if (node.attributes.width && node.attributes.height) return;
+
+              const parts = node.attributes.viewBox.trim().split(/[\s,]+/);
+              if (parts.length !== 4) return;
+
+              if (!node.attributes.width) {
+                node.attributes.width = parts[2];
+              }
+              if (!node.attributes.height) {
+                node.attributes.height = parts[3];
+              }
+            },
+          },
+        };
+      },
+    },
+    {
+      name: "removeTopLevelFillNone",
+      type: "visitor",
+      fn: () => {
+        return {
+          element: {
+            enter: (node) => {
+              if (node.name !== "svg") return;
+              if (node.attributes.fill !== "none") return;
+
+              delete node.attributes.fill;
+            },
+          },
+        };
+      },
+    },
     {
       name: "preset-default",
       params: {
         overrides: {
           cleanupIds: false,
+          removeUselessStrokeAndFill: {
+            removeNone: true,
+          },
         },
       },
     },
-    "removeDimensions",
   ],
 };
