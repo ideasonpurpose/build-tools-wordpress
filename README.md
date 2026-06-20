@@ -37,7 +37,8 @@ Webpack handles SVG files differently based on import context:
 
 - **In JS/TSX files**:
   - With `?url` query (e.g., `import svg from 'file.svg?url'`): Treated as assets, inlined as data URIs if under 4KB, else files.
-  - Without `?url`: Converted to React components using `@svgr/webpack` for direct JSX usage.
+  - With `?react` query (e.g., `import Icon from 'file.svg?react'`): Explicitly converted to a React component using `@svgr/webpack`.
+  - Without `?url` or `?react`: Converted to React components using `@svgr/webpack` for direct JSX usage (default behavior when imported from `.jsx`/`.tsx`).
 
 Data URIs are generated as `data:image/svg+xml,<url-encoded-content>` using more efficient URL-encoding, not base64.
 

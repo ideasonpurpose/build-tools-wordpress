@@ -219,6 +219,9 @@ export default async (env) => {
          * To import an SVG file as a src url, append ?url to the filename:
          *     import svg from './assets/file.svg?url'
          *
+         * To force an SVG as a React component, append ?react:
+         *     import Icon from './assets/file.svg?react'
+         *
          * @link https://react-svgr.com/docs/webpack/#use-svgr-and-asset-svg-in-the-same-project
          */
         {
@@ -245,8 +248,13 @@ export default async (env) => {
         },
         {
           test: /\.svg$/i,
+          resourceQuery: /react/, // *.svg?react forces React component via SVGR
+          use: ["@svgr/webpack"],
+        },
+        {
+          test: /\.svg$/i,
           issuer: /\.[jt]sx?$/,
-          resourceQuery: { not: [/url/] }, // exclude react component if *.svg?url
+          resourceQuery: { not: [/url/, /react/] }, // exclude react component if *.svg?url or *.svg?react
           use: ["@svgr/webpack"],
         },
         {
