@@ -111,9 +111,9 @@ export function normalizeCommentTagSpacing(content) {
 
     if (block === "wp:paragraph") {
       newContent = newContent
-        .replace(/\n\s*<p>\s*/g, "\n<p>")
+        .replace(/\n\s*(<p[^>]*>)\s*/g, "\n$1")
         .replace(/\s*<\/p>/g, "</p>")
-        .replace(/<p>[\s\S]*?<\/p>/g, (match) =>
+        .replace(/<p[^>]*>[\s\S]*?<\/p>/g, (match) =>
           match.replace(/\s+/g, " ").trim(),
         );
       newContent = newContent.replace(/\n{3,}/g, "\n\n").replace(/\s+$/, "\n");

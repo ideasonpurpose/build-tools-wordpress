@@ -147,6 +147,23 @@ describe("Normalize whitespace", () => {
     expect(actual).toBe(expected);
   });
 
+  test("Whitespace handling in paragraphs with attributes", async () => {
+    const input = (
+      await readFile(
+        "./test/fixtures/format-wp-block-pattern/paragraph-whitespace-with-attributes.php",
+      )
+    ).toString();
+
+    const expected = (
+      await readFile(
+        "./test/fixtures/format-wp-block-pattern/paragraph-whitespace-with-attributes__formatted.php",
+      )
+    ).toString();
+
+    const actual = normalizeCommentTagSpacing(input);
+    expect(actual).toBe(expected);
+  });
+
   test("normalizeNewlines for coverage", async () => {
     const input = "Line 1\nLine 2\n \n \n\n\n\nLine 3\nLine 4";
     const expected = "Line 1\nLine 2\n\nLine 3\nLine 4\n";
