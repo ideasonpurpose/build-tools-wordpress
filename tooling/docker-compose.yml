@@ -181,7 +181,7 @@ services:
                 echo -e "✔️   \033[32mConnected to DB\033[0m" &&
                 export DUMPFILE="/usr/src/'${npm_package_name:-dumpfile}'-$$(date +%FT%H%M%S).sql" &&
                 echo $${DUMPFILE} &&
-                mysqldump --ssl-mode=DISABLED -hdb --databases $${MYSQL_DATABASE} > "$${DUMPFILE}" &&
+                mysqldump --ssl-mode=DISABLED --set-gtid-purged=OFF --single-transaction -hdb --databases $${MYSQL_DATABASE} > "$${DUMPFILE}" &&
                 gzip "$${DUMPFILE}" &&
                 chown -R $${OWNER_GROUP} /usr/src &&
                 echo "Successfully dumped database to \"$${DUMPFILE}.gz\""'
