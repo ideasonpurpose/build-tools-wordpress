@@ -249,13 +249,23 @@ export default async (env) => {
         {
           test: /\.svg$/i,
           resourceQuery: /react/, // *.svg?react forces React component via SVGR
-          use: ["@svgr/webpack"],
+          use: [
+            {
+              loader: "@svgr/webpack",
+              options: { dimensions: false },
+            },
+          ],
         },
         {
           test: /\.svg$/i,
           issuer: /\.[jt]sx?$/,
           resourceQuery: { not: [/url/, /react/] }, // exclude react component if *.svg?url or *.svg?react
-          use: ["@svgr/webpack"],
+          use: [
+            {
+              loader: "@svgr/webpack",
+              options: { dimensions: false },
+            },
+          ],
         },
         {
           test: /fonts\/.*\.(ttf|eot|woff2?)$/i,

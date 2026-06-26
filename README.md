@@ -40,6 +40,8 @@ Webpack handles SVG files differently based on import context:
   - With `?react` query (e.g., `import Icon from 'file.svg?react'`): Explicitly converted to a React component using `@svgr/webpack`.
   - Without `?url` or `?react`: Converted to React components using `@svgr/webpack` for direct JSX usage (default behavior when imported from `.jsx`/`.tsx`).
 
+React components imported via `?react` (or implicitly) have `width`/`height` removed (`dimensions: false`), making them responsive while preserving `viewBox`.
+
 Data URIs are generated as `data:image/svg+xml,<url-encoded-content>` using more efficient URL-encoding, not base64.
 
 ### SVG Optimization
