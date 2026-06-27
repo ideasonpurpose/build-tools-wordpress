@@ -5,7 +5,7 @@ on:
     tags: ["v*"]
 
 permissions:
-  id-token: write  # Required for OIDC
+  id-token: write # Required for OIDC
   contents: read
 
 jobs:
@@ -20,9 +20,8 @@ jobs:
       # https://github.com/actions/setup-node
       - uses: actions/setup-node@v6
         with:
-          node-version: '24'
-          registry-url: 'https://registry.npmjs.org'
-          
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
       # - run: npm ci
       - run: npm publish --provenance --access public
-       
