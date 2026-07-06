@@ -8,13 +8,14 @@
     }
   ],
   "config": {
+    "discard-changes": "stash",
     "optimize-autoloader": true,
-    "sort-packages": true,
-    "vendor-dir": "wp-content/themes/iop-theme/vendor",
     "platform": {
       "php": "8.4",
       "ext-intl": "0"
-    }
+    },
+    "sort-packages": true,
+    "vendor-dir": "wp-content/themes/iop-theme/vendor"
   },
   "autoload": {
     "psr-4": {
