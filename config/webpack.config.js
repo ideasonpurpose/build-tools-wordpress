@@ -1,3 +1,5 @@
+// @ts-check
+
 import { posix as path } from "path";
 
 import { statSync } from "fs";
@@ -34,7 +36,7 @@ if (process.env.WEBPACK_BUNDLE_ANALYZER) process.env.NODE_ENV = "production";
 
 const isProduction = process.env.NODE_ENV === "production";
 
-const stats = {
+const __stats = {
   preset: "normal",
   cachedAssets: false,
   assets: true,
@@ -79,6 +81,28 @@ const stats = {
   loggingDebug: ["sass-loader"],
 };
 
+const stats = isProduction
+  ? {
+      preset: "normal",
+      colors: true,
+    }
+  : {
+      all: false,
+      errors: true,
+      warnings: true,
+      errorDetails: false,
+      colors: true,
+      modules: false,
+      assets: false, // ← hides the long asset list on every rebuild
+      entrypoints: false,
+      hash: false,
+      version: false,
+      performance: false,
+      reasons: false,
+      timings: false,
+      children: false,
+      loggingDebug: false, // only enable sass debug when you really need it
+    };
 /**
  * @param {Record<string, any>} env - Environment variables from Webpack CLI
  */
@@ -91,7 +115,6 @@ export default async (env) => {
   const config = await buildConfig(configFile);
 
   const proxy = isProduction ? {} : await devserverProxy(config);
-
 
   /**
    * Simple helper for encoding SVGs as data urls with proper encoding for special characters
@@ -121,12 +144,12 @@ export default async (env) => {
 
   const devtool = config.devtool || false;
 
-  // Debug: Log the watchFiles paths
   const watchPath =
     path.resolve(config.src, "..") + "/**/*.{php,html,svg,json}";
-  console.log(chalk.cyan("🔍 Watching files:"), watchPath);
+  console.log(chalk.cyan("🔍"), chalk.bold("Watching:"), watchPath);
   console.log(
-    chalk.cyan("📁 Theme directory:"),
+    chalk.cyan("📁"),
+    chalk.bold("Theme:"),
     path.resolve(config.src, ".."),
   );
 
@@ -323,7 +346,11 @@ export default async (env) => {
       // hot: "only",
       static: [
         { directory: config.dist, watch: false },
-        { directory: config.src, publicPath: config.publicPath.replace('/dist/', '/src/'), watch: false },
+        {
+          directory: config.src,
+          publicPath: config.publicPath.replace("/dist/", "/src/"),
+          watch: false,
+        },
       ],
 
       client: {
@@ -344,7 +371,9 @@ export default async (env) => {
 
       devMiddleware: {
         index: false, // enable root proxying
-
+        infrastructureLogging: {
+          level: "warn", // or "error" for even stricter
+        },
         writeToDisk: (filePath) => {
           // // // SHORT_CIRCUIT FOR TESTING
           // // console.log("DEBUG writeToDisk:", { filePath });
@@ -418,7 +447,11 @@ export default async (env) => {
           devServer.server.address().port;
         devServer.compiler._devServer = devServer;
 
-        console.log("Listening on port:", port);
+        console.log(
+          chalk.cyan("●"),
+          chalk.bold("Listening:"),
+          chalk.blue.underline(`http://localhost:${port}`),
+        );
       },
 
       /**
@@ -435,7 +468,9 @@ export default async (env) => {
          * `/inform` requests with 404s, filling logs and cluttering
          * terminals. So that's why this is here. I hate it.
          */
-        devServer.app.all("/inform", () => false);
+        devServer.app.all("/inform", (req, res) => {
+          res.status(204).end();
+        });
 
         /**
          * The "/webpack/reload" endpoint will trigger a full devServer refresh
@@ -448,7 +483,9 @@ export default async (env) => {
          */
         devServer.app.get("/webpack/reload", (req, res) => {
           console.log(
-            chalk.yellow("Reload triggered by request to /webpack/reload"),
+            chalk.yellow("↻"),
+            chalk.yellow.bold("Reload:"),
+            "/webpack/reload",
           );
 
           devServer.sendMessage(
@@ -529,12 +566,13 @@ export default async (env) => {
         manifestFile: config.manifestFile,
       }),
 
-      new AfterDoneReporterPlugin({
+      new WatchRunReporterPlugin({
         echo: env && env.WEBPACK_SERVE,
-        // message:
-        //   "Dev site " + chalk.blue.bold(`http://localhost:${process.env.PORT}`),
       }),
 
+      new AfterDoneReporterPlugin({
+        echo: env && env.WEBPACK_SERVE,
+      }),
       new BundleAnalyzerPlugin({
         analyzerMode: isProduction ? "static" : "disabled",
         openAnalyzer: false,

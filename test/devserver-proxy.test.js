@@ -82,15 +82,15 @@ test("Proxy boolean false", async () => {
   expect(await devserverProxy({ proxy })).toStrictEqual({ proxy: [] });
 });
 
-test("test the returned proxy onError handler", async () => {
+test("test the returned proxy on.error handler", async () => {
   const logSpy = vi.spyOn(console, "log");
   const actual = await devserverProxy({ proxy: true });
 
   const err = { code: "ECONNRESET" };
 
-  actual.proxy[0].onError(err, "req", "res");
+  actual.proxy[0].on.error(err, "req", "res");
   expect(logSpy).toHaveBeenLastCalledWith(
-    expect.stringContaining("ECONNRESET"),
+    expect.stringContaining("connection reset"),
   );
 
   err.code = "Unknown Error Code";
@@ -99,10 +99,10 @@ test("test the returned proxy onError handler", async () => {
   const req = { url: "url" };
   const res = { writeHead: vi.fn(), end: vi.fn() };
 
-  actual.proxy[0].onError(err, req, res);
+  actual.proxy[0].on.error(err, req, res);
 
   expect(logSpy).toHaveBeenLastCalledWith(
-    expect.stringContaining("Devserver Proxy Error"),
+    expect.stringContaining("Proxy error"),
     req.url,
     expect.any(Object),
     err.stack,
@@ -114,10 +114,10 @@ test("test the returned proxy onError handler", async () => {
   );
 });
 
-test("onProxyRes Handler", async () => {
+test("on.proxyRes Handler", async () => {
   const config = { proxy: "http://localhost:3000" };
   const result = await devserverProxy(config);
-  const onProxyRes = result.proxy[0].onProxyRes;
+  const onProxyRes = result.proxy[0].on.proxyRes;
 
   const mockProxyRes = new EventEmitter();
   mockProxyRes.statusCode = 200;
@@ -152,10 +152,10 @@ test("onProxyRes Handler", async () => {
   );
 });
 
-test("onProxyRes Handler passthrough", async () => {
+test("on.proxyRes Handler passthrough", async () => {
   const config = { proxy: "http://localhost:3000" };
   const result = await devserverProxy(config);
-  const onProxyRes = result.proxy[0].onProxyRes;
+  const onProxyRes = result.proxy[0].on.proxyRes;
 
   const mockProxyRes = new EventEmitter();
   mockProxyRes.statusCode = 200;
@@ -190,9 +190,9 @@ test("onProxyRes Handler passthrough", async () => {
   );
 });
 
-test("onProxyReqWs handler", async () => {
+test("on.proxyReqWs handler", async () => {
   const result = await devserverProxy({ proxy: "http://example.com" });
-  const onProxyReqWs = result.proxy[0].onProxyReqWs;
+  const onProxyReqWs = result.proxy[0].on.proxyReqWs;
 
   const socket = new EventEmitter();
   const errSpy = vi.spyOn(console, "error");
@@ -202,7 +202,8 @@ test("onProxyReqWs handler", async () => {
   expect(errSpy).not.toHaveBeenCalled();
 
   socket.emit("error", { code: "OTHER" });
-  expect(errSpy).toHaveBeenCalledWith("WebSocket proxy error:", {
-    code: "OTHER",
-  });
+  expect(errSpy).toHaveBeenCalledWith(
+    expect.stringContaining("WebSocket proxy error"),
+    { code: "OTHER" },
+  );
 });
