@@ -371,9 +371,6 @@ export default async (env) => {
 
       devMiddleware: {
         index: false, // enable root proxying
-        infrastructureLogging: {
-          level: "warn", // or "error" for even stricter
-        },
         writeToDisk: (filePath) => {
           // // // SHORT_CIRCUIT FOR TESTING
           // // console.log("DEBUG writeToDisk:", { filePath });
