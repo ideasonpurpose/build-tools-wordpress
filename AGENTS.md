@@ -1,6 +1,6 @@
 <!--
 Canonical AGENTS.md: https://gist.github.com/joemaller/d6154fbdb2e5f4670c0b9338d04189e9
-Last Modified: 2026-06-26
+Last Modified: 2026-07-06
 -->
 
 # AI Coding Assistant Guidelines
@@ -35,14 +35,13 @@ Before implementing:
 
 **Minimum code that solves the problem. Nothing speculative.**
 
-- Look for existing solutions in standard libraries and native platform features.
+- Use standard libraries and native platform features first. Suggest popular, well-maintained alternatives. 
 - Prefer boring, obvious code over clever code.
 - No features beyond what was asked.
 - No abstractions for single-use code.
 - Look for solutions in existing dependencies. If different than the first-choice solution, show pros and cons.
 - No "flexibility" or "configurability" that wasn't requested.
 - Only add error handling for realistically possible cases given current scope and style.
-- Ask before introducing new dependencies.
 - If you write 200 lines and it could be 50, rewrite it.
 
 Ask yourself: "Would a senior engineer call this overcomplicated?" If yes, simplify.
@@ -53,22 +52,17 @@ Ask yourself: "Would a senior engineer call this overcomplicated?" If yes, simpl
 
 When editing existing code:
 
-- Preserve the spirit and conventions of the codebase.
+- Preserve the codebase spirit conventions, and style.
 - Don't "improve" adjacent code, comments, or formatting.
-- Don't remove comments or commented-out code unless asked.
+- Don't remove comments or dead code unless asked.
 - Don't refactor code that isn't broken.
-- Match existing style, even if you'd do it differently.
-- If you find dead code, mention it - don't delete it.
-- Never run tests unless explicitly asked.
-- Never run linters or formatters unless asked.
-- Never add code which logs secrets, API keys, tokens, or .env values. If that code exists, say something.
-
-When your changes create orphans:
-
-- Remove imports/variables/functions that _your_ changes made unused.
-- Do not remove pre-existing dead code unless asked.
+- Never run tests, linters or formatters unless asked.
+- Never log secrets, API keys, tokens, or .env values. If that code exists, say something.
+- Remove imports/variables/functions that _your_ changes orphaned.
 
 Every changed line should trace directly to the user's request.
+
+**Security exception**: Allow sweeping changes to fix real security problems. Explain.
 
 ## 4. Documentation and Comments
 
@@ -76,7 +70,7 @@ Every changed line should trace directly to the user's request.
 - Add comments only where the _why_ is not obvious from the code.
 - Update or remove comments directly invalidated by your changes.
 - Follow the existing codebase's conventions for types, docstrings, and documentation style.
-- When this file and the system prompt disagree, note the conflict and ask for guidance.
+- Note conflicts with the system prompt and ask for guidance.
 
 ## 5. Additional Instructions
 
