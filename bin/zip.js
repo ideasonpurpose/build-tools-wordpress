@@ -1,49 +1,46 @@
 #! /usr/bin/env node
+// @ts-check
 
-import { readJsonSync, ensureFileSync } from "fs-extra/esm";
-import { stat } from "node:fs/promises";
-
-import { basename, dirname, join } from "node:path/posix";
 import { createReadStream, createWriteStream, statSync } from "node:fs";
-
+import { basename, dirname, join } from "node:path/posix";
 import { clearLine, cursorTo } from "node:readline";
-
-import url from "url";
-import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { ZipArchive } from "archiver";
 import chalk from "chalk";
-import { cosmiconfig, cosmiconfigSync } from "cosmiconfig";
+import cliTruncate from "cli-truncate";
+import { cosmiconfig } from "cosmiconfig";
 import { filesize } from "filesize";
+import { readJsonSync, ensureFileSync } from "fs-extra/esm";
 import { globby } from "globby";
 import isTextPath from "is-text-path";
-import cliTruncate from "cli-truncate";
-import stringLength from "string-length";
 import replaceStream from "replacestream";
+import stringLength from "string-length";
 
-// import buildConfig from "../lib/buildConfig.js";
 import { buildConfig } from "../index.js";
-// import {dirname} from "node:path";
 import { prettierHrtime } from "../lib/prettier-hrtime.js";
 
-// console.log(process.cwd());
-// console.log(import.meta.url);
-// console.log(new URL(import.meta.url));
+/**
+ * @typedef {import("../lib/buildConfig.js").BuildConfig} BuildConfig
+ *
+ * @typedef {Object} ArchiveFile
+ * @property {string} path - Path relative to projectDir
+ * @property {import("node:fs").Stats} stat
+ * @property {import("node:stream").Readable} contents
+ */
 
 async function getConfig() {
   const siteDir = process.cwd();
   const explorer = cosmiconfig("ideasonpurpose");
   const configFile = await explorer.search(siteDir);
-  const config = await buildConfig(configFile);
 
-  // config.configFileUrl2 = configFile.filepath;
-  // console.log({ config, configFile });
+  /** @type {BuildConfig} */
+  const config = await buildConfig(configFile);
 
   return { config };
 }
+/** @type {{ config: BuildConfig }} */
 const { config } = await getConfig();
 
-// config.configFileUrl = new URL("package.json", config.configFileUrl);
 const pkgJson = readJsonSync(new URL("package.json", config.configFileUrl));
 pkgJson.name = pkgJson.name ?? "archive";
 pkgJson.version = pkgJson.version ?? "";
@@ -55,14 +52,6 @@ const versionDirName = `${archiveName}${archiveVersion}`.replace(/[ .]/g, "_");
 
 const zipFileName = `${versionDirName}.zip`;
 const zipFile = new URL(`_builds/${zipFileName}`, config.configFileUrl);
-
-// console.log({
-//   archiveName,
-//   archiveVersion,
-//   versionDirName,
-//   zipFile,
-//   zipFileName,
-// });
 
 ensureFileSync(zipFile.pathname);
 const output = createWriteStream(zipFile);
@@ -80,7 +69,6 @@ const start = process.hrtime();
  * files will be found relative to this.
  */
 const projectDir = new URL(`${config.src}/../`, config.configFileUrl);
-// process.exit();
 
 /**
  * Counters for total uncompressed size and number of files
@@ -143,7 +131,10 @@ globby(
         inBytes += chunk.length;
       });
 
-      file.contents.on("end", () => foundReporter(file));
+      file.contents.on("end", () => {
+        fileCount += 1;
+        foundReporter(file);
+      });
 
       /**
        * Adding a data handler changes a stream's mode from paused to flowing
@@ -164,8 +155,11 @@ globby(
   .then(() => archive.finalize())
   .catch(console.error);
 
+/**
+ * @param {ArchiveFile} file
+ */
 function foundReporter(file) {
-  fileCount += 1;
+  if (!process.stdout.isTTY) return;
   let outString = [
     "🔍 ",
     chalk.yellow("Found"),
@@ -181,9 +175,7 @@ function foundReporter(file) {
   outString += chalk.blue(cliTruncate(file.path, cols, { position: "middle" }));
 
   if (fileCount % 25 == 0) {
-    // process.stdout.clearLine();
-    clearLine(process.stdout);
-    // process.stdout.cursorTo(0);
+    clearLine(process.stdout, 0);
     cursorTo(process.stdout, 0);
     process.stdout.write(outString);
   }
@@ -196,10 +188,7 @@ function finishReporter() {
   const savedBytes = inBytes - outBytes;
   const savedPercent = ((1 - outBytes / inBytes) * 100).toFixed(2);
 
-  // process.stdout.clearLine();
-  clearLine(process.stdout);
-
-  // process.stdout.cursorTo(0);
+  clearLine(process.stdout, 0);
   cursorTo(process.stdout, 0);
 
   console.log(
