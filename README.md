@@ -95,13 +95,13 @@ Sass can import stylesheet files directly from npm packages. Use the full path f
 
 A GitHub action will auto-publish version-tagged releases to npm. In order to publish, the repository must have an `NPM_TOKEN` secret set with the token from npm. [Log into npmjs.org](https://www.npmjs.com/login) with a publish-authorized account, then find the token page linked from the Profile page sidebar. Generate a new token and update the repository secret.
 
-<!-- START IOP CREDIT BLURB -->
+<!-- START IOP CREDIT BLURB 2026-07-->
 
 ## &nbsp;
 
 #### Brought to you by IOP
 
-| <a href="https://www.ideasonpurpose.com"><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/iop-logo-white-on-black-88px.png" height="44" align="top" alt="IOP Logo"></a> | This project is actively developed and used in production at <a href="https://www.ideasonpurpose.com">Ideas On Purpose</a>. |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| <a href="https://www.ideasonpurpose.com"><img src="https://raw.githubusercontent.com/ideasonpurpose/ideasonpurpose/master/iop-logo-white-on-black-88px.png" width="44" height="44" align="top" alt="IOP Logo"></a> <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | This project is actively developed and used in production at <a href="https://www.ideasonpurpose.com">Ideas On Purpose</a>. <br>&nbsp; |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 
 <!-- END IOP CREDIT BLURB -->
