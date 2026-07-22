@@ -15,6 +15,7 @@ import { globby } from "globby";
 import isTextPath from "is-text-path";
 import replaceStream from "replacestream";
 import stringLength from "string-length";
+import open from "open";
 
 import { buildConfig } from "../index.js";
 import { prettierHrtime } from "../lib/prettier-hrtime.js";
@@ -181,7 +182,7 @@ function foundReporter(file) {
   }
 }
 
-function finishReporter() {
+async function finishReporter() {
   const outBytes = archive.pointer();
   const end = process.hrtime(start);
   const duration = prettierHrtime(end);
@@ -225,4 +226,7 @@ function finishReporter() {
     chalk.bold(`Remember to push to ${chalk.cyan("GitHub!")}`),
   );
   console.log("✨");
+
+  // Experiment: Try opening the _builds directory at the end of the build
+  await open(dirname(zipFile.pathname));
 }
