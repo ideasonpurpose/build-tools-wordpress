@@ -23,14 +23,15 @@
     "iop-build-zip-archive": "./bin/zip.js",
     "iop-html-php-prettier": "./bin/format-php-prettier.js",
     "iop-format-wp-block-pattern": "./bin/format-wp-block-pattern.js",
-    "iop-project-refresh": "./bin/refresh.js"
+    "iop-project-refresh": "./bin/refresh.js",
+    "iop-vscode-svgo": "./bin/vscode-svgo.js"
   },
   "directories": {
     "lib": "lib"
   },
   "scripts": {
     "test": "vitest",
-    "version": "version-everything && auto-changelog && git add -u"
+    "version": "version-everything && git add -u"
   },
   "prettier": "@ideasonpurpose/prettier-config",
   "dependencies": {
@@ -89,11 +90,9 @@
     "version-everything": "^0.12.2",
     "webpack": "^5.108.4",
     "webpack-bundle-analyzer": "^5.3.1",
+    "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^6.0.0",
     "webpack-manifest-plugin": "^6.0.1"
-  },
-  "peerDependencies": {
-    "webpack-cli": "^6.0.1"
   },
   "engines": {
     "node": ">=22.15.0"

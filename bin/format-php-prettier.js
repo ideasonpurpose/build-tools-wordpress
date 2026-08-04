@@ -2,6 +2,9 @@
 
 //@ts-check
 
+import prettierConfig from "@ideasonpurpose/prettier-config" with {
+  type: "json",
+};
 /**
  * This is an experimental proof-of-concept for formatting mixed HTML & PHP
  * files from a single function.
@@ -9,15 +12,17 @@
  * TODO: Testing, naming, modularization, VS Code extension
  */
 import prettier from "prettier";
-import prettierConfig from "@ideasonpurpose/prettier-config" with { type: "json" };
 
 const phpPlugin = await import("@prettier/plugin-php");
 
 // Explicitly reset the plugin because global installs can't resolve it
+// @ts-expect-error — prettierConfig types expect string paths, but runtime accepts plugin modules
 prettierConfig.plugins = [phpPlugin];
 
-import { readFile, writeFile } from "fs/promises";
-import { resolve, basename } from "path";
+import { realpathSync } from "node:fs";
+import { readFile, writeFile } from "node:fs/promises";
+import { basename, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 /**
  * Prettier API doesn't recognize overrides, so we extract them
@@ -30,6 +35,7 @@ const phpOptions = prettierConfig.overrides.find(
   (o) => o.files === "*.php",
 )?.options;
 
+/** @param {string} html @param {number} offset */
 const isInTag = (html, offset) => {
   if (offset === 0) return false;
 
@@ -56,6 +62,7 @@ const isInTag = (html, offset) => {
  * being mutilated by the HTML formatting step. Cleaner than adding a string.replace
  * to unTokenizeHTML().
  */
+/** @param {string} htmlContent */
 export function tokenizeHTML(htmlContent) {
   let tokenizedHTML = "";
   const phpCodeBlocks = new Map(); // Changed to Map for better performance and type safety
@@ -67,6 +74,7 @@ export function tokenizeHTML(htmlContent) {
    *
    * NOTE: This uses tokenCount from the enclosing scope
    */
+  /** @param {string} phpCodeBlock @param {string} prevContent */
   const tokenizeCodeBlock = (phpCodeBlock, prevContent) => {
     let start = "<";
     let end = " />";
@@ -79,27 +87,14 @@ export function tokenizeHTML(htmlContent) {
     return `${start}php_${tokenCount++}__`.padEnd(codeLength, "_") + end;
   };
 
-  // const pattern = /<\?(?:php|=)[\s\S]*?\?>/gs;
-  // const pattern =
-  //   /(?<before>(?:[^\s]|\s|^)\s*)(?<php><\?(?:php|=).*?(?:\?>|$))(?<after>(?:\s*)[^\s]|$)/gs;
-  // const pattern =
-  //   /((?:[^\s]|\s|^)\s*)(<\?(?:php|=).*?(?:\?>|$))((?:\s*)[^\s]|$)/gms;
-  // // const pattern = /([^\s]+)\s*(<\?(?:php|=).*?(?:\?>|$))\s*([^\s]*)/gms;
-  // const pattern =
-  //   /([^\s]?\s*)?(<\?(?:php|=).*?(?:\?>|$))((?:\s*)[^\s]|$)/gms;
-  // const pattern =
-  //   /(?<=((?:[^\s]|\s|^)\s*))(<\?(?:php|=).*?\?>)(?=((?:\s*)[^\s]|$))/gms;
-  // try removing look ahead/behind
-  const pattern = /(<\?(?:php|=).*?\?>)/gms;
-
   // const regex = new RegExp(/<\?(?:php|=).*?\?>/, "gs");
   // Trying to capture open-ended PHP codeBlocks in a single regexp
   const regex = new RegExp(/<\?(?:php|=).*?(?:\?>|$)/, "gs");
 
-  let match;
+  let match = regex.exec(htmlContent);
   let token;
   let lastIndex = 0;
-  while ((match = regex.exec(htmlContent)) !== null) {
+  while (match !== null) {
     tokenizedHTML += htmlContent.slice(lastIndex, match.index);
 
     token = tokenizeCodeBlock(match[0], tokenizedHTML);
@@ -107,12 +102,14 @@ export function tokenizeHTML(htmlContent) {
     tokenizedHTML += token;
 
     lastIndex = match.index + match[0].length;
+    match = regex.exec(htmlContent);
   }
   tokenizedHTML += htmlContent.slice(lastIndex);
 
   return { tokenizedHTML, phpCodeBlocks };
 }
 
+/** @param {string} tokenizedHTML @param {Map<string, string>} phpCodeBlocks */
 export function unTokenizeHTML(tokenizedHTML, phpCodeBlocks) {
   let phpContent = tokenizedHTML;
   for (const [token, phpBlock] of phpCodeBlocks) {
@@ -132,55 +129,129 @@ export function unTokenizeHTML(tokenizedHTML, phpCodeBlocks) {
 }
 
 /**
- * Formats a mixed HTML & PHP file with these steps:
+ * @param {bigint} start
+ * @param {bigint} end
+ */
+const ms = (start, end) => Number(end - start) / 1e6;
+
+/**
+ * Formats mixed HTML & PHP content:
  *  1. Tokenize PHP Blocks as HTML-safe and attribute-safe strings
  *  2. Format the result as HTML
  *  3. Un-tokenize HTML back to PHP
  *  4. Format again as PHP
- *  5. Overwrite the file
  *
- * @param {string} filepath - The path to the file to format (must be a valid file path).
+ * @param {string} content
+ * @param {string} [label]
+ * @returns {Promise<string>}
+ */
+export async function formatHTMLThenPHPContent(content, label = "stdin") {
+  const t0 = process.hrtime.bigint();
+  const startupMs = process.uptime() * 1e3;
+
+  const tTokenize0 = process.hrtime.bigint();
+  const { tokenizedHTML, phpCodeBlocks } = tokenizeHTML(content);
+  const tTokenize1 = process.hrtime.bigint();
+
+  const htmlFormatted = await prettier.format(tokenizedHTML, {
+    ...prettierConfig,
+    ...htmlOptions,
+    parser: "html",
+    embeddedLanguageFormatting: "auto",
+  });
+  const tHtml = process.hrtime.bigint();
+
+  const phpUnTokenized = unTokenizeHTML(htmlFormatted, phpCodeBlocks);
+  const tUnTokenize = process.hrtime.bigint();
+
+  const phpFormatted = await prettier.format(phpUnTokenized, {
+    ...prettierConfig,
+    ...phpOptions,
+    parser: "php",
+    embeddedLanguageFormatting: "auto",
+  });
+  const tEnd = process.hrtime.bigint();
+
+  console.error(
+    [
+      label,
+      `startup ${startupMs.toFixed(2)}ms`,
+      `tokenize ${ms(tTokenize0, tTokenize1).toFixed(2)}ms`,
+      `formatHTML ${ms(tTokenize1, tHtml).toFixed(2)}ms`,
+      `unTokenize ${ms(tHtml, tUnTokenize).toFixed(2)}ms`,
+      `formatPHP ${ms(tUnTokenize, tEnd).toFixed(2)}ms`,
+      `total ${(startupMs + ms(t0, tEnd)).toFixed(2)}ms`,
+    ].join("  "),
+  );
+
+  return phpFormatted;
+}
+
+/**
+ * Formats a mixed HTML & PHP file in place.
+ *
+ * @param {string} filepath
  */
 export async function formatHTMLThenPHP(filepath) {
+  const rawFile = await readFile(filepath, "utf8");
+  const phpFormatted = await formatHTMLThenPHPContent(
+    rawFile,
+    basename(filepath),
+  );
+  await writeFile(filepath, phpFormatted, "utf8");
+}
+
+/**
+ * @returns {Promise<string>}
+ */
+async function readStdin() {
+  const chunks = [];
+  for await (const chunk of process.stdin) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks).toString("utf8");
+}
+
+/**
+ * CLI: filepath arg overwrites the file; no arg reads STDIN and writes STDOUT.
+ *
+ * @param {string} [filepath]
+ */
+export async function main(filepath = process.argv[2]) {
   try {
-    const startTime = process.hrtime.bigint();
-    const rawFile = await readFile(filepath, "utf8");
+    if (filepath) {
+      await formatHTMLThenPHP(resolve(filepath));
+      return;
+    }
 
-    const { tokenizedHTML, phpCodeBlocks } = tokenizeHTML(rawFile);
+    if (process.stdin.isTTY) {
+      console.error(
+        "Usage: iop-html-php-prettier <filepath>\n       iop-html-php-prettier < input.php",
+      );
+      process.exitCode = 1;
+      return;
+    }
 
-    const htmlFormatted = await prettier.format(tokenizedHTML, {
-      ...prettierConfig,
-      ...htmlOptions,
-      parser: "html",
-      embeddedLanguageFormatting: "auto",
-    });
-
-    const phpUnTokenized = unTokenizeHTML(htmlFormatted, phpCodeBlocks);
-
-    const phpFormatted = await prettier.format(phpUnTokenized, {
-      ...prettierConfig,
-      ...phpOptions,
-      parser: "php",
-      embeddedLanguageFormatting: "auto",
-      // plugins: [phpPlugin], // Explicitly pass the plugin
-    });
-
-    await writeFile(filepath, phpFormatted, "utf8");
-    const endTime = process.hrtime.bigint();
-    const duration = Number(endTime - startTime);
-
-    console.log(`${basename(filepath)} ${(duration / 1e6).toFixed(2)}ms`);
+    const formatted = await formatHTMLThenPHPContent(
+      await readStdin(),
+      "stdin",
+    );
+    process.stdout.write(formatted);
   } catch (error) {
     console.error("Error:", error);
+    process.exitCode = 1;
   }
 }
 
-export async function main(filepath = process.argv[2]) {
-  if (!filepath) {
-    console.error("Error: A filepath is required.");
-    return;
+const isMain = (() => {
+  if (process.argv[1] == null) return false;
+  try {
+    return (
+      fileURLToPath(import.meta.url) === realpathSync(resolve(process.argv[1]))
+    );
+  } catch {
+    return false;
   }
-  await formatHTMLThenPHP(resolve(filepath));
-}
+})();
 
-if (process.argv[2]) main();
+if (isMain) main();
