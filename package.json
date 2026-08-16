@@ -23,6 +23,7 @@
     "iop-build-zip-archive": "./bin/zip.js",
     "iop-html-php-prettier": "./bin/format-php-prettier.js",
     "iop-format-wp-block-pattern": "./bin/format-wp-block-pattern.js",
+    "iop-format-wp-php": "./bin/format-wp-php.js",
     "iop-project-refresh": "./bin/refresh.js",
     "iop-vscode-svgo": "./bin/vscode-svgo.js"
   },

@@ -27,8 +27,10 @@ import prettier from "prettier";
  *   - wp:gallery
  */
 
-import { readFile, writeFile } from "fs/promises";
-import { resolve, basename } from "path";
+import { realpathSync } from "node:fs";
+import { readFile, writeFile } from "node:fs/promises";
+import { basename, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 /**
  *
@@ -146,7 +148,7 @@ export function trimInsideListElements(content) {
     .replace(/\s*<!-- wp:list /g, "<!-- wp:list ")
     .replace(/>\s*<!-- wp:list /g, ">\n\n<!-- wp:list ")
     .replace(/>\s*<!-- wp:list-item /g, ">\n\n<!-- wp:list-item ")
-    .replace(/<!-- \/wp:list-item -->\s*</g, "<!-- \/wp:list-item -->\n\n<")
+    .replace(/<!-- \/wp:list-item -->\s*</g, "<!-- /wp:list-item -->\n\n<")
     .replace(/<li>\s*/g, "<li>")
     .replace(/\s*<\/li>/g, "</li>");
 }
@@ -177,12 +179,10 @@ export function formatWithPrettier(content) {
 }
 
 /**
- * @param {String} filepath
+ * @param {string} content
+ * @returns {Promise<string>}
  */
-export async function formatWPBlockPattern(filepath) {
-  const startTime = process.hrtime.bigint();
-  const rawFile = await readFile(filepath, "utf8");
-
+export async function formatWPBlockPatternContent(content) {
   const formatters = [
     formatWithPrettier,
     normalizeCommentTagSpacing,
@@ -192,10 +192,19 @@ export async function formatWPBlockPattern(filepath) {
     normalizeNewlines,
   ];
 
-  const outputHtml = await formatters.reduce(
+  return formatters.reduce(
     async (acc, fn) => fn(await acc),
-    Promise.resolve(rawFile),
+    Promise.resolve(content),
   );
+}
+
+/**
+ * @param {string} filepath
+ */
+export async function formatWPBlockPattern(filepath) {
+  const startTime = process.hrtime.bigint();
+  const rawFile = await readFile(filepath, "utf8");
+  const outputHtml = await formatWPBlockPatternContent(rawFile);
 
   await writeFile(filepath, outputHtml, "utf8");
   const endTime = process.hrtime.bigint();
@@ -204,11 +213,49 @@ export async function formatWPBlockPattern(filepath) {
   console.log(`${basename(filepath)} ${(duration / 1e6).toFixed(2)}ms`);
 }
 
-export async function main(filepath = process.argv[2]) {
-  if (!filepath) {
-    console.error("Error: A filepath is required.");
-    return;
+/**
+ * @returns {Promise<string>}
+ */
+async function readStdin() {
+  const chunks = [];
+  for await (const chunk of process.stdin) {
+    chunks.push(chunk);
   }
-  await formatWPBlockPattern(resolve(filepath));
+  return Buffer.concat(chunks).toString("utf8");
 }
-if (process.argv[2]) main();
+
+export async function main(filepath = process.argv[2]) {
+  try {
+    if (filepath) {
+      await formatWPBlockPattern(resolve(filepath));
+      return;
+    }
+
+    if (process.stdin.isTTY) {
+      console.error(
+        "Usage: iop-format-wp-block-pattern <filepath>\n       iop-format-wp-block-pattern < input.php",
+      );
+      process.exitCode = 1;
+      return;
+    }
+
+    const formatted = await formatWPBlockPatternContent(await readStdin());
+    process.stdout.write(formatted);
+  } catch (error) {
+    console.error("Error:", error);
+    process.exitCode = 1;
+  }
+}
+
+const isMain = (() => {
+  if (process.argv[1] == null) return false;
+  try {
+    return (
+      fileURLToPath(import.meta.url) === realpathSync(resolve(process.argv[1]))
+    );
+  } catch {
+    return false;
+  }
+})();
+
+if (isMain) main();
