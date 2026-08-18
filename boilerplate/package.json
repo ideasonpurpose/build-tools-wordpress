@@ -55,7 +55,7 @@
     "version": "version-everything && git add -u",
     "postversion": "npm run build",
     "webgrind": "docker compose run --rm --service-ports webgrind",
-    "wp-cli": "docker compose exec -u wp wordpress",
+    "wp-cli": "docker compose exec wordpress",
     "zip": "iop-build-zip-archive"
   },
   "prettier": "@ideasonpurpose/prettier-config",
@@ -63,7 +63,7 @@
     "extends": "@ideasonpurpose/stylelint-config"
   },
   "devDependencies": {
-    "@ideasonpurpose/build-tools-wordpress": "^2.5.1"
+    "@ideasonpurpose/build-tools-wordpress": "^2.10.8"
   },
   "version-everything": {
     "files": [

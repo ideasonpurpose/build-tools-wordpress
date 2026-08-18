@@ -8,7 +8,9 @@
 
 Build scripts and shared dependencies for WordPress development. Used in production at [Ideas On Purpose](https://www.ideasonpurpose.com).
 
-This package centralizes Webpack configuration, asset pipelines, and helper CLIs so host projects stay thin: a small `package.json`, a one-line `webpack.config.js`, and an optional config file.
+This package centralizes Webpack configuration, asset pipelines, and helper CLIs so host projects stay fast and thin: a small `package.json`, a one-line `webpack.config.js`, and an optional config file.
+
+Use with IOP's lightning-fast [Docker-based WordPress development image](https://github.com/ideasonpurpose/docker-wordpress-dev).
 
 ## Requirements
 
@@ -46,14 +48,16 @@ Prettier and Stylelint configs are re-exported from this package’s dependencie
 
 ## Quick start
 
-**1. Point Webpack at this package**
+### 1. Point Webpack at this package
 
 ```js
 // webpack.config.js
 export { webpackConfig as default } from "@ideasonpurpose/build-tools-wordpress";
 ```
 
-**2. Lay out sources** under the default theme paths (package `name` → theme folder):
+### 2. Source files
+
+The project should have these files:
 
 ```text
 wp-content/themes/<package-name>/
@@ -61,18 +65,17 @@ wp-content/themes/<package-name>/
     js/main.js
     js/admin.js
     js/editor.js
-    sass/   # or styles/
-  dist/     # build output
+    styles/      # formerly 'sass'
 ```
 
-**3. Run**
+### 3. Run
 
 ```sh
-npm start          # webpack-dev-server (proxies local WordPress when available)
-NODE_ENV=production npm run build   # production build + zip (if postbuild is set)
+npm run dev
+
 ```
 
-Full IOP projects also use Docker Compose tooling from this package (`tooling/docker-compose.yml`) and scripts like `bootstrap`, `db:dump`, and `project:refresh`. Those are optional if you only need the asset pipeline.
+### 4. Build
 
 ## Configuration
 
@@ -203,6 +206,21 @@ Notes:
 - Custom: copy width/height from `viewBox` onto `<svg>` when missing
 - Custom: remove top-level `fill="none"`
 - `removeUselessStrokeAndFill` with `removeNone: true`
+
+## WP-CLI
+
+The WordPress base image includes [wp-cli](https://wordpress.org/cli/) and all commands can be run on the image using the `wp-cli` npm script. Commands with flags need to include a double-hyphen, but we just include them for everything. These all work as expected:
+
+```sh
+# list users
+npm run wp-cli -- wp user list
+
+# Update to pre-release
+npm run wp-cli -- wp core update --version=7.1-RC4
+
+# Add a user for e2e testing
+wp user create test test@example.com --role=administrator --user_pass=test123
+```
 
 ## CLI tools
 
