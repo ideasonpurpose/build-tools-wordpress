@@ -35,7 +35,7 @@ Typical host scripts (see [`boilerplate/package.json`](./boilerplate/package.jso
     "zip": "iop-build-zip-archive"
   },
   "devDependencies": {
-    "@ideasonpurpose/build-tools-wordpress": "^2.10.6"
+    "@ideasonpurpose/build-tools-wordpress": "^2.10.10"
   },
   "prettier": "@ideasonpurpose/prettier-config",
   "stylelint": {

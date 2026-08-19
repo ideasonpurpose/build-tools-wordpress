@@ -63,7 +63,7 @@
     "extends": "@ideasonpurpose/stylelint-config"
   },
   "devDependencies": {
-    "@ideasonpurpose/build-tools-wordpress": "^2.10.8"
+    "@ideasonpurpose/build-tools-wordpress": "^2.10.10"
   },
   "version-everything": {
     "files": [

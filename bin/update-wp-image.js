@@ -38,4 +38,7 @@ if (!IMAGE_RE.test(yaml)) {
 
 const image = `ideasonpurpose/wordpress:${wordpress}`;
 await writeFile(composePath, yaml.replace(IMAGE_RE, `$1${image}`));
-console.log(chalk.green(`Updated WordPress image to ${image}`));
+console.log(
+  "✅",
+  chalk.green(`docker-compose WordPress image updated to ${image}`),
+);

@@ -105,7 +105,11 @@
   },
   "version-everything": {
     "files": [
-      "README.md"
+      "README.md",
+      "boilerplate/package.json"
+    ],
+    "prefixes": [
+      "@ideasonpurpose/build-tools-wordpress\": \"\\^"
     ]
   },
   "allowScripts": {
