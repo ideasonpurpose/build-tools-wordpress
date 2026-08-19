@@ -31,13 +31,13 @@ services:
         max-file: "3"
 
   # Ideas On Purpose's local WordPress development environment.
-  # Update image version with `docker run ideasonpurpose/wordpress init`   
+  # Update image version with `docker run ideasonpurpose/wordpress init`
   # Project info: https://github.com/ideasonpurpose/docker-wordpress-dev
   wordpress:
     depends_on:
       - db
     # image: &wp_img ideasonpurpose/wordpress:dev
-    image: &wp_img ideasonpurpose/wordpress:7.0
+    image: &wp_img ideasonpurpose/wordpress:7.0.4
     restart: always
     volumes:
       - wp_data:/var/www/html
@@ -73,7 +73,7 @@ services:
       IOP_DEV_PLUGIN_6:
       IOP_DEV_PLUGIN_7:
       IOP_DEV_PLUGIN_8:
-      WP_ENVIRONMENT_TYPE: 
+      WP_ENVIRONMENT_TYPE:
 
     # Required for iptables port-mapping to work inside the Docker image
     # This is used to fix a PHP/WordPress issue where internal requests

@@ -32,6 +32,7 @@
   },
   "scripts": {
     "test": "vitest",
+    "preversion": "node ./bin/update-wp-image.js",
     "version": "version-everything && git add -u"
   },
   "prettier": "@ideasonpurpose/prettier-config",
