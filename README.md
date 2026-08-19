@@ -1,6 +1,6 @@
 # @ideasonpurpose/build-tools-wordpress
 
-#### Version 2.10.10
+#### Version 2.10.11
 
 [![NPM Version](https://img.shields.io/npm/v/%40ideasonpurpose%2Fbuild-tools-wordpress?logo=npm)](https://www.npmjs.com/package/@ideasonpurpose/build-tools-wordpress)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ideasonpurpose/build-tools-wordpress/npm-publish.yml?logo=github&logoColor=white)](https://github.com/ideasonpurpose/build-tools-wordpress/actions/workflows/npm-publish.yml)
@@ -35,7 +35,7 @@ Typical host scripts (see [`boilerplate/package.json`](./boilerplate/package.jso
     "zip": "iop-build-zip-archive"
   },
   "devDependencies": {
-    "@ideasonpurpose/build-tools-wordpress": "^2.10.10"
+    "@ideasonpurpose/build-tools-wordpress": "^2.10.11"
   },
   "prettier": "@ideasonpurpose/prettier-config",
   "stylelint": {
