@@ -1,6 +1,6 @@
 <!--
 Canonical AGENTS.md: https://gist.github.com/joemaller/d6154fbdb2e5f4670c0b9338d04189e9
-Last Modified: 2026-07-06
+Last Modified: 2026-07-15
 -->
 
 # AI Coding Assistant Guidelines
@@ -35,7 +35,7 @@ Before implementing:
 
 **Minimum code that solves the problem. Nothing speculative.**
 
-- Use standard libraries and native platform features first. Suggest popular, well-maintained alternatives. 
+- Use standard libraries and native platform features first. Suggest popular, well-maintained alternatives.
 - Prefer boring, obvious code over clever code.
 - No features beyond what was asked.
 - No abstractions for single-use code.
@@ -59,6 +59,7 @@ When editing existing code:
 - Never run tests, linters or formatters unless asked.
 - Never log secrets, API keys, tokens, or .env values. If that code exists, say something.
 - Remove imports/variables/functions that _your_ changes orphaned.
+- Always target case-sensitive filesystems. Use precise casing. Verify letter-case of filenames and paths.
 
 Every changed line should trace directly to the user's request.
 
