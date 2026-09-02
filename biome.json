@@ -23,9 +23,16 @@
         "useNodejsImportProtocol": {
           "level": "error",
           "fix": "safe"
-        }
+        },
+        "useTemplate": "off"
       }
     }
+  },
+  "html": {
+    "formatter": {
+      "enabled": true
+    },
+    "experimentalFullSupportEnabled": true
   },
   "javascript": {
     "formatter": {
