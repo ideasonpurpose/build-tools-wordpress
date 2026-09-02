@@ -56,7 +56,7 @@
     "extends": "@ideasonpurpose/stylelint-config"
   },
   "devDependencies": {
-    "@ideasonpurpose/build-tools-wordpress": "^2.10.11"
+    "@ideasonpurpose/build-tools-wordpress": "^2.10.12"
   },
   "version-everything": {
     "files": [
