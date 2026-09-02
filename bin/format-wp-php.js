@@ -7,7 +7,8 @@ import { realpathSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const blockPatternPath = /(?:^|\/)wp-content\/themes\/[^/]+\/patterns\/.*\.php$/;
+const blockPatternPath =
+  /(?:^|\/)wp-content\/themes\/[^/]+\/patterns\/.*\.php$/;
 
 /**
  * @param {string} filepath
@@ -28,17 +29,13 @@ export async function main(args = process.argv.slice(2)) {
   const filepath = args[fileFlagIndex + 1];
 
   if (fileFlagIndex === -1 || !filepath) {
-    console.error(
-      "Usage: iop-format-wp-php --file <filepath> < input.php",
-    );
+    console.error("Usage: iop-format-wp-php --file <filepath> < input.php");
     process.exitCode = 1;
     return;
   }
 
   if (process.stdin.isTTY) {
-    console.error(
-      "Usage: iop-format-wp-php --file <filepath> < input.php",
-    );
+    console.error("Usage: iop-format-wp-php --file <filepath> < input.php");
     process.exitCode = 1;
     return;
   }
@@ -52,6 +49,7 @@ export async function main(args = process.argv.slice(2)) {
       stdio: ["pipe", "pipe", "inherit"],
     });
     process.stdout.write(formatted);
+    console.error(`Formatted with ${formatter}.`);
   } catch (error) {
     console.error(`Error running ${formatter}:`, error);
     process.exitCode = 1;

@@ -10,7 +10,8 @@
  * theme name pulls instead from the docker image's package.json file, which will probably
  * create a theme named 'iop-build-tools'.
  */
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
+
 const packageJson = JSON.parse(readFileSync("./package.json"));
 // import packageJson from "./package.json" with { type: "json" };
 
