@@ -1,18 +1,17 @@
 // @ts-check
 
-import { posix as path } from "path";
-
-import { statSync } from "fs";
-import { cosmiconfig, cosmiconfigSync } from "cosmiconfig";
+import { posix as path } from "node:path";
+// Experimenting with this
+import DependencyExtractionWebpackPlugin from "@wordpress/dependency-extraction-webpack-plugin";
+import autoprefixer from "autoprefixer";
 import chalk from "chalk";
-
-import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import { EsbuildPlugin } from "esbuild-loader";
-
 import CopyPlugin from "copy-webpack-plugin";
-import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
+import { cosmiconfig, cosmiconfigSync } from "cosmiconfig";
+import cssnano from "cssnano";
+import { EsbuildPlugin } from "esbuild-loader";
 import ImageMinimizerPlugin from "image-minimizer-webpack-plugin";
-
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
 import {
   AfterDoneReporterPlugin,
   buildConfig,
@@ -21,12 +20,6 @@ import {
   // findLocalPort,
   WatchRunReporterPlugin,
 } from "../index.js";
-
-import autoprefixer from "autoprefixer";
-import cssnano from "cssnano";
-
-// Experimenting with this
-import DependencyExtractionWebpackPlugin from "@wordpress/dependency-extraction-webpack-plugin";
 
 /**
  * Force `mode: production` when running the analyzer
@@ -371,59 +364,19 @@ export default async (env) => {
 
       devMiddleware: {
         index: false, // enable root proxying
+        /**
+         * @param {string} filePath
+         * @returns {boolean}
+         */
+        /**
+         * A returned Promise is truthy → middleware writes every file.
+         * JS/CSS stay in memory (proxied). PHP/WordPress reads the rest from disk.
+         */
         writeToDisk: (filePath) => {
-          // // // SHORT_CIRCUIT FOR TESTING
-          // // console.log("DEBUG writeToDisk:", { filePath });
-          // return true;
-
-          /**
-           * Note: If this is an async function, it will write everything to disk
-           *
-           * Never write hot-update files to disk.
-           */
-          // vendors-node_modules_mini-css-extract-plugin_dist_hmr_hotModuleReplacement_js-node_modules_we-780fe4.js.map
-          if (/.+(hot-update)\.(js|json|js\.map)$/.test(filePath)) {
-            return false;
-          }
-
-          // // SHORT_CIRCUIT FOR TESTING
-          // console.log("DEBUG writeToDisk:", { filePath });
-          // return true;
-
-          if (/.+\.(svg|json|php|jpg|png)$/.test(filePath)) {
-            const fileStat = statSync(filePath, { throwIfNoEntry: false });
-
-            /**
-             * Always write SVG, PHP & JSON files
-             */
-            if (/.+\.(svg|json|php)$/.test(filePath)) {
-              return true;
-            } else {
-              /**
-               * Write any images under 100k and anything not yet on disk
-               */
-              if (!fileStat || fileStat.size < 100 * 1024) {
-                return true;
-              }
-              /**
-               * TODO: This might all be unnecessary. Webpack seems to be doing a good job with its native caching
-               */
-              // const randOffset = Math.random() * 300000; // 0-5 minutes
-              // const expired = new Date() - fileStat.mtime > randOffset;
-              // const relPath = filePath.replace(config.dist, "dist");
-              // if (expired) {
-              //   console.log("DEBUG writeToDisk:", { replacing: relPath });
-              //   return true;
-              // }
-              // console.log("DEBUG writeToDisk:", { cached: relPath });
-            }
-          }
-
-          // SHORT_CIRCUIT FOR TESTING
-          // return true;
-
-          // console.log("DEBUG writeToDisk:", { filePath });
-          return false;
+          if (filePath.includes("hot-update")) return false;
+          return /\.(svg|json|php|jpe?g|png|gif|tif|webp|avif)$/i.test(
+            filePath,
+          );
         },
         // stats,
         // stats: 'verbose',
@@ -436,13 +389,12 @@ export default async (env) => {
       // },
 
       /**
-       * @param {Object} devServer - The devServer instance
+       * @param {InstanceType<typeof import('webpack-dev-server')>} devServer
        */
       onListening: (devServer) => {
         const port = devServer.server.address().port;
-        devServer.compiler.options.devServer.port =
-          devServer.server.address().port;
-        devServer.compiler._devServer = devServer;
+        // devServer.compiler.options.devServer.port =
+        //   devServer.server.address().port;
 
         console.log(
           chalk.cyan("●"),
@@ -452,8 +404,8 @@ export default async (env) => {
       },
 
       /**
-       * @param {Array<Function>} middlewares - Array of middleware functions
-       * @param {Object} devServer - The devServer instance
+       * @param {import('webpack-dev-server').Middleware[]} middlewares
+       * @param {InstanceType<typeof import('webpack-dev-server')>} devServer
        */
       setupMiddlewares: (middlewares, devServer) => {
         /**
@@ -465,9 +417,16 @@ export default async (env) => {
          * `/inform` requests with 404s, filling logs and cluttering
          * terminals. So that's why this is here. I hate it.
          */
-        devServer.app.all("/inform", (req, res) => {
-          res.status(204).end();
-        });
+        devServer.app.all(
+          "/inform",
+          /**
+           * @param {import('express').Request} _req
+           * @param {import('express').Response} res
+           */
+          (_req, res) => {
+            res.status(204).end();
+          },
+        );
 
         /**
          * The "/webpack/reload" endpoint will trigger a full devServer refresh
@@ -478,20 +437,27 @@ export default async (env) => {
          * Originally from our Browsersync implementation:
          * @link https://github.com/ideasonpurpose/wp-theme-init/blob/ad8039c9757ffc3a0a0ed0adcc616a013fdc8604/src/ThemeInit.php#L202
          */
-        devServer.app.get("/webpack/reload", (req, res) => {
-          console.log(
-            chalk.yellow("↻"),
-            chalk.yellow.bold("Reload:"),
-            "/webpack/reload",
-          );
+        devServer.app.get(
+          "/webpack/reload",
+          /**
+           * @param {import('express').Request} _req
+           * @param {import('express').Response} res
+           */
+          (_req, res) => {
+            console.log(
+              chalk.yellow("↻"),
+              chalk.yellow.bold("Reload:"),
+              "/webpack/reload",
+            );
 
-          devServer.sendMessage(
-            devServer.webSocketServer.clients,
-            "static-changed",
-          );
+            devServer.sendMessage(
+              devServer.webSocketServer.clients,
+              "static-changed",
+            );
 
-          res.json({ status: "Reloading!" });
-        });
+            res.json({ status: "Reloading!" });
+          },
+        );
 
         return middlewares;
       },
@@ -556,7 +522,7 @@ export default async (env) => {
       /**
        * @link https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dependency-extraction-webpack-plugin/
        */
-      new DependencyExtractionWebpackPlugin(),
+      new DependencyExtractionWebpackPlugin({}),
 
       new DependencyManifestPlugin({
         writeManifestFile: true,
@@ -564,11 +530,11 @@ export default async (env) => {
       }),
 
       new WatchRunReporterPlugin({
-        echo: env && env.WEBPACK_SERVE,
+        echo: env?.WEBPACK_SERVE,
       }),
 
       new AfterDoneReporterPlugin({
-        echo: env && env.WEBPACK_SERVE,
+        echo: env?.WEBPACK_SERVE,
       }),
       new BundleAnalyzerPlugin({
         analyzerMode: isProduction ? "static" : "disabled",
