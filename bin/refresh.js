@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import chalk from "chalk";
 import fs from "fs-extra";
 import { readPackageUp } from "read-package-up";
+import sortPackageJson from "sort-package-json";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const boilerplateDir = path.resolve(__dirname, "../boilerplate");
@@ -17,7 +18,10 @@ async function main() {
   const force = args.includes("--force");
   const dryRun = args.includes("--dry-run");
 
-  const pkgInfo = await readPackageUp({ cwd: process.cwd() });
+  const pkgInfo = await readPackageUp({
+    cwd: process.cwd(),
+    normalize: false,
+  });
   if (!pkgInfo) {
     console.error(chalk.red("No package.json found. Run from a project root."));
     process.exit(1);
@@ -76,9 +80,13 @@ async function main() {
   }
 
   if (!dryRun) {
-    await fs.writeJson(path.join(projectRoot, "package.json"), projectPkg, {
-      spaces: 2,
-    });
+    await fs.writeJson(
+      path.join(projectRoot, "package.json"),
+      sortPackageJson(projectPkg),
+      {
+        spaces: 2,
+      },
+    );
     console.log(chalk.green("✓  Updated package.json"));
   } else {
     console.log(chalk.gray("--dry-run: would update package.json"));
