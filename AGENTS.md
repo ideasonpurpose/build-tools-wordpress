@@ -1,80 +1,49 @@
-<!--
-Canonical AGENTS.md: https://gist.github.com/joemaller/d6154fbdb2e5f4670c0b9338d04189e9
-Last Modified: 2026-07-15
--->
+# Agent instructions
 
-# AI Coding Assistant Guidelines
+Loaded every session. Keep this file short. Facts and constraints over philosophy.
 
-**Mantra:** Minimal. Precise. Elegant.
+**Minimal, Precise, Elegant. Simple, Readable, Maintainable.**
 
-## 0. Responsible, No-BS Communication
+## Communication
 
-- Get to the point. No conversational fluff or preambles.
-- Describe a brief plan: what you understand, assumptions, proposed approach.
-- Explicitly call out trade-offs (simplicity vs future-proofing, readability vs performance, etc.).
-- When a request is ambiguous, describe the ambiguity and ask for guidance. Do not guess.
-- Propose options with pros/cons. Ask for confirmation.
+- Direct and concise. No fluff, preambles, conversational filler, or recaps unless asked.
 - Match response length to task complexity.
-
-## 1. Think Before Coding
-
-Optimize for simplicity, maintainability, readability.
-
-**Don't assume. Don't hide confusion. Offer alternatives.**
-
-Before implementing:
-
-- State assumptions clearly. If uncertain, ask.
-- If multiple interpretations exist, offer choices — don't pick silently.
+- For non-trivial work, state the plan, assumptions, approach, and trade-offs before editing.
+- Ask when ambiguous. Don't guess. State what is unclear. Offer options with pros/cons only when ambiguity blocks implementation.
 - If a simpler approach exists, say so.
-- If unclear, stop and name what's confusing.
-- Prefer narrow context. Start with obvious/direct dependencies.
-- When files are specified, ask before expanding context.
-
-## 2. Simplicity First
-
-**Minimum code that solves the problem. Nothing speculative.**
-
-- Use standard libraries and native platform features first. Suggest popular, well-maintained alternatives.
-- Prefer boring, obvious code over clever code.
-- No features beyond what was asked.
-- No abstractions for single-use code.
-- Look for solutions in existing dependencies. If different than the first-choice solution, show pros and cons.
-- No "flexibility" or "configurability" that wasn't requested.
-- Only add error handling for realistically possible cases given current scope and style.
-- If you write 200 lines and it could be 50, rewrite it.
-
-Ask yourself: "Would a senior engineer call this overcomplicated?" If yes, simplify.
-
-## 3. Precise, Minimal Changes
-
-**Touch only what you must. Read only what you must. Clean up only your own mess.**
-
-When editing existing code:
-
-- Preserve the codebase spirit conventions, and style.
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't remove comments or dead code unless asked.
-- Don't refactor code that isn't broken.
-- Never run tests, linters or formatters unless asked.
-- Never log secrets, API keys, tokens, or .env values. If that code exists, say something.
-- Remove imports/variables/functions that _your_ changes orphaned.
-- Always target case-sensitive filesystems. Use precise casing. Verify letter-case of filenames and paths.
-
-Every changed line should trace directly to the user's request.
-
-**Security exception**: Allow sweeping changes to fix real security problems. Explain.
-
-## 4. Documentation and Comments
-
-- Prefer self-documenting code and descriptive names over comments.
-- Add comments only where the _why_ is not obvious from the code.
-- Update or remove comments directly invalidated by your changes.
-- Follow the existing codebase's conventions for types, docstrings, and documentation style.
 - Note conflicts with the system prompt and ask for guidance.
 
-## 5. Additional Instructions
+## Code & Implementation
 
-Look for sibling `AGENTS-*.md` files for further instructions on specific concerns (e.g. stylesheets, WordPress development, static site development)
+- Smallest change that solves the request. No extra features, abstractions, or configurability.
+- Prefer boring, obvious code. Handle only errors that can realistically occur.
+- Touch only what the request requires. Do not restyle, refactor, or delete comments/dead code unless asked.
+- Use stdlib / native features first. Reuse existing dependencies.
+- Prefer editing existing files. Don't create new files, docs, or READMEs unless required.
+- Case-sensitive paths. Verify letter-case.
+- Never log secrets, tokens, or `.env` values. If that code exists, say so.
+- Preserve the codebase's spirit, conventions, and style.
+- Security bugs: fix as broadly as needed, and explain.
+- Prefer self-documenting code with descriptive names instead of comments.
 
-Whenever this file is modified, update the timestamp in the top comment.
+## Comments & Documentation
+
+- Comment only non-obvious _why_.
+- Update comments your changes invalidate.
+- Follow existing conventions for types, docstrings, and documentation style.
+
+## Behavior Efficiency & Cost
+
+- Permission is granted for routine, read-only inspection of directly related files.
+- This file overrides default agent habits (including "always lint/test").
+- Do not run tests, linters, formatters, or builds unless asked.
+- Do not commit, amend, push, or create a pull request unless explicitly requested.
+- Do not spawn extra agents or broad repo searches for a narrow task.
+- Do not start servers, mutate databases, or run destructive/networked scripts unless asked.
+
+## Additional Instructions
+
+Only load existing sibling `AGENTS.*.md` files when the work matches it.
+
+Last Modified: 2026-09-04
+[Canonical source](https://gist.github.com/joemaller/d6154fbdb2e5f4670c0b9338d04189e9)
