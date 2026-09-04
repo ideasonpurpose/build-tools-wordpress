@@ -27,7 +27,7 @@ async function main() {
 
   if (!dryRun && !force) {
     try {
-      const status = execSync("git status --porcelain", {
+      const status = execSync("git status --porcelain --untracked-files=no", {
         cwd: projectRoot,
         encoding: "utf8",
       }).trim();
@@ -59,25 +59,21 @@ async function main() {
     delete projectPkg.scripts[k];
   }
 
-  const keysToMerge = [
-    "scripts",
-    "devDependencies",
-    "version-everything",
-    "prettier",
-    "stylelint",
-  ];
+  const keysToMerge = ["scripts", "dependencies", "devDependencies"];
 
   for (const key of keysToMerge) {
     if (templatePkg[key]) {
       projectPkg[key] = { ...(projectPkg[key] || {}), ...templatePkg[key] };
     }
   }
-  // preserve user values for name/desc/version
-  for (const k of ["name", "description", "version"]) {
-    if (projectPkg[k]) delete templatePkg[k];
-  }
 
-  Object.assign(projectPkg, templatePkg); // but safer selective already done
+  // prettier and stylelint are simple enough to just overwrite directly
+  if (templatePkg.prettier) {
+    projectPkg.prettier = templatePkg.prettier;
+  }
+  if (templatePkg.stylelint) {
+    projectPkg.stylelint = templatePkg.stylelint;
+  }
 
   if (!dryRun) {
     await fs.writeJson(path.join(projectRoot, "package.json"), projectPkg, {

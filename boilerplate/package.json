@@ -55,13 +55,16 @@
   "stylelint": {
     "extends": "@ideasonpurpose/stylelint-config"
   },
+  "dependencies": {
+    "@ideasonpurpose/wp-theme-addons": "^0.3.1"
+  },
   "devDependencies": {
     "@ideasonpurpose/build-tools-wordpress": "^2.10.12"
   },
   "version-everything": {
     "files": [
       "README.md",
-      "wp-content/themes/iop-theme/style.css"
+      "wp-content/themes/<package.name>/style.css"
     ]
   }
 }
