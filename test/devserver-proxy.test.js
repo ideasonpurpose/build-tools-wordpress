@@ -152,6 +152,38 @@ test("on.proxyRes Handler", async () => {
   );
 });
 
+test("on.proxyRes Handler rewrites sitemap xml hosts", async () => {
+  const config = { proxy: "http://localhost:3000" };
+  const result = await devserverProxy(config);
+  const onProxyRes = result.proxy[0].on.proxyRes;
+
+  const mockProxyRes = new EventEmitter();
+  mockProxyRes.statusCode = 200;
+  mockProxyRes.headers = {
+    "content-type": "application/xml; charset=UTF-8",
+  };
+  const mockReq = {
+    headers: { host: "example.com" },
+    path: "/wp-sitemap.xml",
+  };
+
+  const mockRes = {
+    statusCode: 0,
+    setHeader: vi.fn(),
+    end: vi.fn(),
+  };
+
+  onProxyRes(mockProxyRes, mockReq, mockRes);
+
+  mockProxyRes.emit(
+    "data",
+    Buffer.from("<loc>http://localhost:3000/page</loc>"),
+  );
+  mockProxyRes.emit("end");
+
+  expect(mockRes.end).toHaveBeenCalledWith("<loc>http://example.com/page</loc>");
+});
+
 test("on.proxyRes Handler passthrough", async () => {
   const config = { proxy: "http://localhost:3000" };
   const result = await devserverProxy(config);
