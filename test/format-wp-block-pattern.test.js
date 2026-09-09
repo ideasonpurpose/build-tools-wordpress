@@ -1,7 +1,7 @@
 //@ts-check
 
-import { describe, expect, test, vi } from "vitest";
 import prettier from "prettier";
+import { describe, expect, test, vi } from "vitest";
 
 vi.mock("prettier", () => ({
   default: {
@@ -9,18 +9,27 @@ vi.mock("prettier", () => ({
   },
 }));
 
-import { readFile } from "node:fs/promises";
+vi.mock("node:fs/promises", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    writeFile: vi.fn().mockResolvedValue(undefined),
+  };
+});
 
+import { readFile, writeFile } from "node:fs/promises";
+
+import * as wpBlockPattern from "../bin/format-wp-block-pattern.js";
 import {
-  formatWpCommentJson,
   formatAllWpComments,
+  formatWithPrettier,
+  formatWPBlockPatternContent,
+  formatWpCommentJson,
+  main,
   normalizeCommentTagSpacing,
-  trimInsideListElements,
   normalizeNewlines,
   trimInsideHeadings,
-  formatWithPrettier,
-  formatWPBlockPattern,
-  main,
+  trimInsideListElements,
 } from "../bin/format-wp-block-pattern.js";
 
 describe("Format JSON in WP Block comments", () => {
@@ -30,6 +39,16 @@ describe("Format JSON in WP Block comments", () => {
 
     const actual = formatWpCommentJson(input);
     expect(actual).toBe(expected);
+  });
+
+  test("formatWPBlockPatternContent runs the formatter pipeline", async () => {
+    vi.mocked(prettier.format).mockImplementation(async (content) => content);
+
+    const input = `<!-- wp:paragraph -->\n  <p>\n    Hello\n  </p>\n<!-- /wp:paragraph -->`;
+    const actual = await formatWPBlockPatternContent(input);
+
+    expect(actual).toContain("<p>Hello</p>");
+    expect(actual.endsWith("\n")).toBe(true);
   });
 
   test("Return short JSON for simple wp:* comments", async () => {
@@ -86,6 +105,23 @@ describe("Format JSON in WP Block comments", () => {
 });
 
 describe("Format WP Block Patterns", () => {
+  test("formatWPBlockPattern writes formatted content", async () => {
+    const filepath = "./test/fixtures/format-wp-block-pattern/basic-pattern.php";
+    const formatted = "<formatted/>";
+    const formatSpy = vi
+      .spyOn(wpBlockPattern, "formatWPBlockPatternContent")
+      .mockResolvedValue(formatted);
+    const log = vi.spyOn(console, "log").mockImplementation(() => {});
+
+    await wpBlockPattern.formatWPBlockPattern(filepath);
+
+    expect(formatSpy).toHaveBeenCalled();
+    expect(writeFile).toHaveBeenCalledWith(filepath, formatted, "utf8");
+
+    formatSpy.mockRestore();
+    log.mockRestore();
+  });
+
   test("Format JSON in all comments", async () => {
     const input = (
       await readFile(
@@ -188,9 +224,8 @@ describe("Normalize whitespace", () => {
 
   test("main requires filepath", async () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
-    await main();
+    await main("fake/path");
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
   });
 });
-
