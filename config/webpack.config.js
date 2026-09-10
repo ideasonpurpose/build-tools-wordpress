@@ -1,5 +1,6 @@
 // @ts-check
 
+import { createRequire } from "node:module";
 import { posix as path } from "node:path";
 // Experimenting with this
 import DependencyExtractionWebpackPlugin from "@wordpress/dependency-extraction-webpack-plugin";
@@ -20,6 +21,8 @@ import {
   // findLocalPort,
   WatchRunReporterPlugin,
 } from "../index.js";
+
+const require = createRequire(import.meta.url);
 
 /**
  * Force `mode: production` when running the analyzer
@@ -293,11 +296,16 @@ export default async (env) => {
     context: path.resolve(config.src),
 
     resolve: {
+      // Relative "node_modules" walks from the issuer; required for pnpm.
       modules: [
+        "node_modules",
         path.resolve("../tools/node_modules"),
         path.resolve("../site/node_modules"),
         path.resolve("./node_modules"),
       ],
+      fallback: {
+        events: require.resolve("events/"),
+      },
     },
 
     resolveLoader: {
