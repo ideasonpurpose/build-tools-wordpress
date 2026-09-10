@@ -59,7 +59,7 @@
     "@ideasonpurpose/wp-theme-addons": "^0.4.0"
   },
   "devDependencies": {
-    "@ideasonpurpose/build-tools-wordpress": "^2.10.16"
+    "@ideasonpurpose/build-tools-wordpress": "^2.11.0"
   },
   "devEngines": {
     "packageManager": {
