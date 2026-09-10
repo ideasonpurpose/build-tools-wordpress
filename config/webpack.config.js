@@ -161,7 +161,7 @@ export default async (env) => {
       rules: [
         {
           test: /\.[jt]sx?$/,
-          loader: "esbuild-loader",
+          loader: require.resolve("esbuild-loader"),
           options: {
             loader: "jsx",
             target: config.esTarget,
@@ -173,14 +173,14 @@ export default async (env) => {
           use: [
             MiniCssExtractPlugin.loader,
             {
-              loader: "css-loader",
+              loader: require.resolve("css-loader"),
               options: {
                 import: false, // imports already handled by Sass or PostCSS
                 sourceMap: !isProduction,
               },
             },
             {
-              loader: "postcss-loader",
+              loader: require.resolve("postcss-loader"),
               options: {
                 sourceMap: !isProduction,
                 postcssOptions: {
@@ -194,7 +194,7 @@ export default async (env) => {
               },
             },
             {
-              loader: "sass-loader",
+              loader: require.resolve("sass-loader"),
               options: {
                 implementation: "sass-embedded",
                 sourceMap: !isProduction,
@@ -270,7 +270,7 @@ export default async (env) => {
           resourceQuery: /react/, // *.svg?react forces React component via SVGR
           use: [
             {
-              loader: "@svgr/webpack",
+              loader: require.resolve("@svgr/webpack"),
               options: { dimensions: false },
             },
           ],
@@ -281,7 +281,7 @@ export default async (env) => {
           resourceQuery: { not: [/url/, /react/] }, // exclude react component if *.svg?url or *.svg?react
           use: [
             {
-              loader: "@svgr/webpack",
+              loader: require.resolve("@svgr/webpack"),
               options: { dimensions: false },
             },
           ],
@@ -311,8 +311,7 @@ export default async (env) => {
     resolveLoader: {
       modules: [
         "node_modules",
-        new URL("../../build-tools-wordpress/node_modules", import.meta.url)
-          .pathname,
+        new URL("../node_modules", import.meta.url).pathname,
       ],
     },
 
