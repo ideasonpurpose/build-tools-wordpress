@@ -22,9 +22,9 @@
     "iop-build-port-reporter": "./bin/port-reporter.js",
     "iop-build-zip-archive": "./bin/zip.js",
     "iop-clean-dist": "./bin/clean.js",
-    "iop-html-php-prettier": "./bin/format-php-prettier.js",
     "iop-format-wp-block-pattern": "./bin/format-wp-block-pattern.js",
     "iop-format-wp-php": "./bin/format-wp-php.js",
+    "iop-html-php-prettier": "./bin/format-php-prettier.js",
     "iop-project-refresh": "./bin/refresh.js",
     "iop-vscode-svgo": "./bin/vscode-svgo.js",
     "iop-webpack": "./bin/webpack.js"
@@ -46,10 +46,10 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@svgr/webpack": "^8.1.0",
-    "@wordpress/dependency-extraction-webpack-plugin": "^6.54.0",
+    "@wordpress/dependency-extraction-webpack-plugin": "^6.55.0",
     "ansi-html": "^0.0.9",
     "archiver": "^8.0.0",
-    "autoprefixer": "^10.5.5",
+    "autoprefixer": "^10.6.1",
     "babel-loader": "^10.1.1",
     "caniuse-lite": "^1.0.30001810",
     "chalk": "^6.0.0",
@@ -59,52 +59,60 @@
     "copy-webpack-plugin": "^14.0.0",
     "cosmiconfig": "^10.0.1",
     "css-loader": "^7.1.5",
-    "cssnano": "^9.0.4",
+    "cssnano": "^9.0.5",
     "dotenv": "^17.4.2",
     "esbuild-loader": "^4.5.0",
-    "eslint": "^10.10.0",
+    "eslint": "^10.11.0",
     "events": "^3.3.0",
-    "filesize": "^11.0.23",
-    "fs-extra": "^11.4.0",
+    "filesize": "^11.0.24",
+    "fs-extra": "^11.4.1",
     "globby": "^16.2.4",
     "html-webpack-plugin": "^5.6.8",
-    "humanize-duration": "^3.34.1",
+    "humanize-duration": "^3.35.0",
     "image-minimizer-webpack-plugin": "^5.0.0",
     "is-text-path": "^3.0.0",
     "lodash": "^4.18.1",
     "mini-css-extract-plugin": "^2.10.2",
-    "open": "^11.0.2",
+    "open": "^11.0.4",
     "ora": "^9.4.1",
     "postcss": "^8.5.28",
     "postcss-loader": "^8.2.1",
     "postcss-scss": "^4.0.9",
-    "prettier": "^3.9.6",
+    "prettier": "^3.9.8",
     "pretty-hrtime": "^1.0.3",
     "read-package-up": "^12.0.0",
     "replacestream": "^4.0.3",
     "rimraf": "^6.1.3",
-    "sass-embedded": "^1.104.0",
+    "sass-embedded": "^1.105.0",
     "sass-loader": "^17.0.1",
     "semver": "^7.8.5",
     "sharp": "^0.35.4",
     "sort-package-json": "^4.0.0",
     "string-length": "^7.0.1",
     "style-loader": "^4.0.0",
+    "stylelint": "^16.26.1",
+    "stylelint-order": "^7.0.1",
+    "stylelint-prettier": "^5.0.3",
     "svgo": "^4.1.0",
     "svgo-loader": "^5.0.0",
     "version-everything": "^0.12.2",
-    "webpack": "^5.110.3",
-    "webpack-bundle-analyzer": "^5.3.2",
+    "webpack": "^5.111.1",
+    "webpack-bundle-analyzer": "^5.4.0",
     "webpack-cli": "^7.2.3",
     "webpack-dev-server": "^6.0.0",
     "webpack-manifest-plugin": "^6.0.1"
   },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^5.0.1",
+    "vitest": "^5.0.1"
+  },
   "engines": {
     "node": ">=22.15.0"
   },
-  "devDependencies": {
-    "@vitest/coverage-v8": "^5.0.0",
-    "vitest": "^5.0.0"
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "fsevents@2.3.3": true,
+    "@parcel/watcher@2.5.6": true
   },
   "version-everything": {
     "files": [
@@ -114,10 +122,5 @@
     "prefixes": [
       "@ideasonpurpose/build-tools-wordpress\": \"\\^"
     ]
-  },
-  "allowScripts": {
-    "esbuild@0.28.1": true,
-    "fsevents@2.3.3": true,
-    "@parcel/watcher@2.5.6": true
   }
 }

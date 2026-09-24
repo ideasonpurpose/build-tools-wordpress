@@ -171,9 +171,9 @@ async function main() {
   if (!dryRun) {
     console.log("");
     console.log(chalk.cyan("Run these to finish setup:"));
-    console.log(chalk.cyan("  npm install"));
+    console.log(chalk.cyan("  pnpm install"));
     console.log(chalk.cyan("  docker compose pull"));
-    console.log(chalk.cyan("  npm run composer:update"));
+    console.log(chalk.cyan("  pnpm run composer:update"));
   }
 
   if (dryRun) console.log(chalk.gray("Dry run complete."));
