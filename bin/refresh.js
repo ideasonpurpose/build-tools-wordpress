@@ -6,6 +6,7 @@ import chalk from "chalk";
 import fs from "fs-extra";
 import { readPackageUp } from "read-package-up";
 import sortPackageJson from "sort-package-json";
+import YAML from "yaml";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const boilerplateDir = path.resolve(__dirname, "../boilerplate");
@@ -167,7 +168,29 @@ async function main() {
     }
   }
 
-  // 10. Print next steps
+  // 10. pnpm-workspace.yaml: public-hoist Stylelint and Prettier so the VS Code
+  // extensions can resolve them from the project root under pnpm's isolated
+  // node_modules. Stylelint's prettier plugin loads @prettier/plugin-php by name.
+  const workspacePath = path.join(projectRoot, "pnpm-workspace.yaml");
+  const hoistPatterns = ["*stylelint*", "*prettier*", "version-everything"];
+  const workspace = (await fs.pathExists(workspacePath))
+    ? (YAML.parse(await fs.readFile(workspacePath, "utf8")) ?? {})
+    : {};
+  const currentPatterns = workspace.publicHoistPattern ?? [];
+  const missingPatterns = hoistPatterns.filter(
+    (p) => !currentPatterns.includes(p),
+  );
+  if (missingPatterns.length) {
+    workspace.publicHoistPattern = [...currentPatterns, ...missingPatterns];
+    if (!dryRun) {
+      await fs.writeFile(workspacePath, YAML.stringify(workspace));
+      console.log(chalk.green("✓  Updated pnpm-workspace.yaml"));
+    } else {
+      console.log(chalk.gray("--dry-run: would update pnpm-workspace.yaml"));
+    }
+  }
+
+  // 11. Print next steps
   if (!dryRun) {
     console.log("");
     console.log(chalk.cyan("Run these to finish setup:"));

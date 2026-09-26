@@ -19,7 +19,7 @@ Use with IOP's lightning-fast [Docker-based WordPress development image](https:/
 ## Install
 
 ```sh
-npm install -D @ideasonpurpose/build-tools-wordpress
+pnpm add -D @ideasonpurpose/build-tools-wordpress
 ```
 
 Typical host scripts (see [`boilerplate/package.json`](./boilerplate/package.json)):
@@ -28,9 +28,9 @@ Typical host scripts (see [`boilerplate/package.json`](./boilerplate/package.jso
 {
   "type": "module",
   "scripts": {
-    "prebuild": "npm run clean",
+    "prebuild": "pnpm run clean",
     "build": "NODE_ENV=production iop-webpack",
-    "postbuild": "npm run zip",
+    "postbuild": "pnpm run zip",
     "start": "iop-webpack serve",
     "zip": "iop-build-zip-archive"
   },
@@ -45,6 +45,16 @@ Typical host scripts (see [`boilerplate/package.json`](./boilerplate/package.jso
 ```
 
 Prettier and Stylelint configs are re-exported from this package’s dependencies so hosts can extend them without separate installs.
+
+With pnpm’s isolated `node_modules`, transitive dependencies are not linked to the project root, so the VS Code Stylelint extension cannot resolve Stylelint (and Stylelint’s Prettier plugin cannot resolve `@prettier/plugin-php`). Hosts must public-hoist them in `pnpm-workspace.yaml`:
+
+```yaml
+publicHoistPattern:
+  - "*stylelint*"
+  - "*prettier*"
+```
+
+`iop-project-refresh` adds these automatically.
 
 ## Quick start
 
