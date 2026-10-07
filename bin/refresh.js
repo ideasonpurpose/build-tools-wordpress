@@ -136,7 +136,15 @@ async function main() {
     console.log(chalk.green("✓  Updated .env.sample"));
   }
 
-  // 7. .gitignore from gist
+  // 7. AGENTS.md
+  const agentsSrc = path.join(boilerplateDir, "AGENTS.md");
+  const agentsDest = path.join(projectRoot, "AGENTS.md");
+  if (!dryRun) {
+    await fs.copy(agentsSrc, agentsDest, { overwrite: true });
+    console.log(chalk.green("✓  Updated AGENTS.md"));
+  }
+
+  // 8. .gitignore from gist
   try {
     const res = await fetch(GITIGNORE_URL);
     const gitignore = await res.text();
@@ -148,7 +156,7 @@ async function main() {
     console.warn(chalk.yellow("Could not fetch .gitignore: " + e.message));
   }
 
-  // 8. create dirs
+  // 9. create dirs
   const dirs = ["_db", "wp-content/plugins", "wp-content/uploads"];
 
   for (const d of dirs) {
@@ -158,7 +166,7 @@ async function main() {
     }
   }
 
-  // 9. composer.json if missing
+  // 10. composer.json if missing
   const composerSrc = path.join(boilerplateDir, "composer.json");
   const composerDest = path.join(projectRoot, "composer.json");
   if (!(await fs.pathExists(composerDest))) {
@@ -168,7 +176,7 @@ async function main() {
     }
   }
 
-  // 10. pnpm-workspace.yaml: public-hoist Stylelint and Prettier so the VS Code
+  // 11. pnpm-workspace.yaml: public-hoist Stylelint and Prettier so the VS Code
   // extensions can resolve them from the project root under pnpm's isolated
   // node_modules. Stylelint's prettier plugin loads @prettier/plugin-php by name.
   const workspacePath = path.join(projectRoot, "pnpm-workspace.yaml");
@@ -190,7 +198,7 @@ async function main() {
     }
   }
 
-  // 11. Print next steps
+  // 12. Print next steps
   if (!dryRun) {
     console.log("");
     console.log(chalk.cyan("Run these to finish setup:"));
