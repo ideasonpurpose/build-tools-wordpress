@@ -339,7 +339,7 @@ export default async (env) => {
     devServer: {
       host: "0.0.0.0",
       allowedHosts: "all",
-      port: "auto",
+      port: config.port,
 
       hot: true, // Enable hot module replacement with fallback to full reload
 

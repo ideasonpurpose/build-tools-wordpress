@@ -23,7 +23,7 @@ export default {
   entry: ["./js/main.js", "./js/admin.js", "./js/editor.js"],
   publicPath: `/wp-content/themes/${themeName}/dist/`,
 
-  esTarget: "es2020",
+  esTarget: "es2025",
 
   devtool: "source-map",
 };

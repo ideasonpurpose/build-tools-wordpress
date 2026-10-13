@@ -99,10 +99,11 @@ Optional config is loaded with [cosmiconfig](https://github.com/cosmiconfig/cosm
 | `dist`         | `./wp-content/themes/<name>/dist`                     |                                                                                  |
 | `entry`        | `["./js/main.js", "./js/admin.js", "./js/editor.js"]` | Relative to `src`. String, array, or object                                      |
 | `publicPath`   | `/wp-content/themes/<name>/dist/`                     |                                                                                  |
-| `esTarget`     | `"es2020"`                                            | Passed to esbuild-loader / minimizer                                             |
+| `esTarget`     | `"es2025"`                                            | Passed to esbuild-loader / minimizer                                             |
 | `devtool`      | `"source-map"`                                        |                                                                                  |
 | `proxy`        | `"wordpress"`                                         | Dev-server proxy target (Docker service name, URL, IP, or `true` to auto-detect) |
 | `manifestFile` | `"./dependency-manifest.json"`                        | Written into `dist`                                                              |
+| `port`         | `"auto"`                                              | Dev-server port. A number (e.g. `30040`) fixes it; errors if already in use      |
 | `type`         | _(unset / theme)_                                     | Set `"plugin"` to change archive naming                                          |
 
 Paths resolve relative to the config file (or `package.json` if no config file is found).
