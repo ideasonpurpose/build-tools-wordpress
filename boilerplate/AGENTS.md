@@ -1,5 +1,7 @@
 # IOP WordPress site
 
+Synced from `@ideasonpurpose/build-tools-wordpress` (`boilerplate/AGENTS.md`). `iop-project-refresh` overwrites this file.
+
 - Theme lives in wp-content/themes/<package.json name>/. Edit src/ only; never dist/ or WP core. package.json owns theme name and version.
 - A dev server is usually already running at http://localhost:8080. Ask before `pnpm run dev`.
 - wp-cli: `npm run wp-cli -- wp <command>` (runs in Docker), not a host `wp`.
