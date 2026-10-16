@@ -3,7 +3,7 @@
 Synced from `@ideasonpurpose/build-tools-wordpress` (`boilerplate/AGENTS.md`). `iop-project-refresh` overwrites this file.
 
 - Theme lives in wp-content/themes/<package.json name>/. Edit src/ only; never dist/ or WP core. package.json owns theme name and version.
-- A dev server is usually already running at http://localhost:8080. Ask before `pnpm run dev`.
+- A dev server is usually already running on localhost. Port 8080 or a custom port from ideasonpurpose config. Ask before `pnpm run dev`.
 - wp-cli: `npm run wp-cli -- wp <command>` (runs in Docker), not a host `wp`.
 - Ask before `pnpm run pull:*`, `db:*`, anything that overwrites local data, or creating WP users.
 - Releases: `pnpm version patch|minor|major`. Never hand-edit version metadata.
