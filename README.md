@@ -108,6 +108,18 @@ Optional config is loaded with [cosmiconfig](https://github.com/cosmiconfig/cosm
 
 Paths resolve relative to the config file (or `package.json` if no config file is found).
 
+### Dev server port
+
+`port` defaults to `"auto"`. To pin it, set a number. A port-only override belongs in `package.json`:
+
+```json
+"ideasonpurpose": {
+  "port": 30040
+}
+```
+
+Cosmiconfig loads the first config it finds and ignores the rest. `package.json` is checked before `ideasonpurpose.config.js`, so an `ideasonpurpose` key hides the config file. If the project already has `ideasonpurpose.config.js`, put `port` in that file instead.
+
 ### Entry shapes
 
 ```js
