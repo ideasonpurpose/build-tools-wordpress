@@ -31,7 +31,7 @@ Typical host scripts (see [`boilerplate/package.json`](./boilerplate/package.jso
     "prebuild": "pnpm run clean",
     "build": "NODE_ENV=production iop-webpack",
     "postbuild": "pnpm run zip",
-    "start": "iop-webpack serve",
+    "dev": "iop-webpack serve",
     "zip": "iop-build-zip-archive"
   },
   "devDependencies": {
