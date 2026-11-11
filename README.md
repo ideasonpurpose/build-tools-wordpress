@@ -52,6 +52,7 @@ With pnpm’s isolated `node_modules`, transitive dependencies are not linked to
 publicHoistPattern:
   - "*stylelint*"
   - "*prettier*"
+  - "version-everything"
 ```
 
 `iop-project-refresh` adds these automatically.
