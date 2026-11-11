@@ -101,6 +101,14 @@ async function main() {
     console.log(chalk.green("✓  Updated docker-compose.yml"));
   }
 
+  // 2b. GitHub release workflow
+  const workflowSrc = path.join(boilerplateDir, ".github/workflows/release-with-build.yml");
+  const workflowDest = path.join(projectRoot, ".github/workflows/release-with-build.yml");
+  if (!dryRun) {
+    await fs.copy(workflowSrc, workflowDest, { overwrite: true });
+    console.log(chalk.green("✓  Updated .github/workflows/release-with-build.yml"));
+  }
+
   // 3. webpack.config.js stub
   const webpackSrc = path.join(boilerplateDir, "webpack.config.js");
   const webpackDest = path.join(projectRoot, "webpack.config.js");

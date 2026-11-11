@@ -1,0 +1,62 @@
+# Managed by @ideasonpurpose/build-tools-wordpress. Do not edit this copy.
+# Make changes in build-tools-wordpress/boilerplate/.github/workflows/release-with-build.yml,
+# then update projects with `iop-project-refresh`.
+
+name: Build and Release Theme
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build-and-release:
+    name: Build Theme and Create Release
+    # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+    # https://github.com/actions/runner-images
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
+    steps:
+      # https://github.com/marketplace/actions/checkout
+      - uses: actions/checkout@v7
+
+      # Install pnpm (version comes from package.json "packageManager")
+      # https://github.com/marketplace/actions/setup-pnpm
+      - uses: pnpm/action-setup@v6
+
+      # Set up Node.js
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "pnpm"
+
+      # Install dependencies
+      - run: pnpm install --frozen-lockfile
+
+      # https://github.com/marketplace/actions/setup-php-action
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate
+
+      - name: Install PHP dependencies
+        run: composer install --prefer-dist --no-progress
+
+      # Build the theme (the postbuild script creates a single zip artifact in _builds)
+      - run: pnpm run build
+
+      # Set ZIPFILE from the single artifact in _builds (no cache)
+      - name: Set ZIPFILE
+        id: artifact
+        run: echo "zipfile=$(echo _builds/*.zip)" >> $GITHUB_OUTPUT
+
+      # Create GitHub release with the zip as an asset
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Creating release for tag: ${{ github.ref_name }}"
+          gh release create "${{ github.ref_name }}" --generate-notes "${{ steps.artifact.outputs.zipfile }}"
