@@ -43,6 +43,8 @@ export function formatWpCommentJson(wpCommentTag) {
   }
 
   const jsonStr = match[1];
+  // Skip comments that print PHP values
+  if (/<\?(?:php\s|=).*?\?>/s.test(jsonStr)) return wpCommentTag;
   try {
     const jsonObj = JSON.parse(jsonStr);
     const indent =
