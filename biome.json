@@ -25,6 +25,14 @@
           "fix": "safe"
         },
         "useTemplate": "off"
+      },
+      "suspicious": {
+        "useIterableCallbackReturn": {
+          "level": "on",
+          "options": {
+            "checkForEach": true
+          }
+        }
       }
     }
   },
